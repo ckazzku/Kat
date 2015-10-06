@@ -2,33 +2,38 @@
 
 #include <QDebug>
 
-ApiRequest::ApiRequest(QObject *parent)
-    : QObject(parent)
+ApiRequest::ApiRequest(const QString &_version, QObject *parent) :
+    QObject(parent),
+    version_(_version)
 {
-    BASE_URL = "https://api.vk.com/method/";
-    API_VERSION = "?v=5.37";
 }
 
-void ApiRequest::startRequest(QString method, QHash<QString, QString> args) {
+void ApiRequest::call(const QString &_method, const QHash<QString, QString> &_args) const {
     QString url = "";
-    QHashIterator<QString, QString> iterator(args);
-    url = url.append(BASE_URL).append(method).append(API_VERSION);
-    url = url.append("&access_token=").append(Storage().getAccessToken());
-    while (iterator.hasNext()) {
-        iterator.next();
-        url = url.append("&").append(iterator.key()).append("=").append(iterator.value());
+    url.append(BASE_URL).append(_method).append("?v="+version_)
+       .append("&access_token=").append(Storage().getAccessToken());
+
+    for (auto &iterator: _args) {
+        url.append("&").append(iterator.key()).append("=").append(iterator.value());
     }
 
-    qDebug() << url;
+    qDebug() << "Request: " << url;
 
     QNetworkAccessManager *mgr = new QNetworkAccessManager(this);
-    connect(mgr, SIGNAL(finished(QNetworkReply*)), this, SLOT(httpFinished(QNetworkReply*)));
-    connect(mgr, SIGNAL(finished(QNetworkReply*)), mgr, SLOT(deleteLater()));
+    connect(mgr, &QNetworkAccessManager::finished, this, &ApiRequest::onRequestFinished);
+    connect(mgr, &QNetworkAccessManager::finished, mgr, QNetworkAccessManager::deleteLater);
 
     mgr->get(QNetworkRequest(QUrl(url)));
 }
 
-void ApiRequest::httpFinished(QNetworkReply *rep) {
-    if (rep->error() == QNetworkReply::NoError) emit finished(rep->readAll());
-    else qDebug() << "Failture:" << rep->errorString();
+void ApiRequest::onRequestFinished(QNetworkReply *rep) {
+    if (rep->error() == QNetworkReply::NoError) {
+
+        QJsonDocument document = QJsonDocument::fromJson(rep->readAll().toUtf8());
+        QJsonObject object = document.object();
+        // TODO: store cookies
+        emit gotResponse(object);
+    } else {
+        qDebug() << "Failure:" << rep->errorString();
+    }
 }

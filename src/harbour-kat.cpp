@@ -36,6 +36,9 @@
 #include "filedownloader.h"
 #include "notificationhelper.h"
 #include "api/photos.h"
+#include "session.h"
+
+const QString CURRENT_API_VERSION = "5.37";
 
 int main(int argc, char *argv[])
 {
@@ -45,6 +48,9 @@ int main(int argc, char *argv[])
     QScopedPointer<FileDownloader> fileDownloader(new FileDownloader(view.data()));
     QScopedPointer<NotificationHelper> notificationHelper(new NotificationHelper(view.data()));
     QScopedPointer<Photos> photos(new Photos(view.data()));
+    QScopedPointer<ApiRequest> api(new Api(CURRENT_API_VERSION, view.data()));
+    QScopedPointer<Storage> storage(new Storage(view.data()));
+    QScopedPointer<Session> session(new Session(view.data()));
 
     QUrl cachePath;
     QStringList cacheLocation = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
@@ -55,6 +61,10 @@ int main(int argc, char *argv[])
     view->rootContext()->setContextProperty("fileDownloader", fileDownloader.data());
     view->rootContext()->setContextProperty("notificationHelper", notificationHelper.data());
     view->rootContext()->setContextProperty("photos", photos.data());
+
+    view->rootContext()->setContextProperty("Api", api.data());
+    view->rootContext()->setContextProperty("Storage", storage.data());
+    view->rootContext()->setContextProperty("Session", session.data());
 
     view->setSource(SailfishApp::pathTo("qml/harbour-kat.qml"));
     view->show();

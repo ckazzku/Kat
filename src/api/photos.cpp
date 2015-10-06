@@ -59,8 +59,8 @@ void Photos::uploadedImage(QNetworkReply *reply) {
 
         ApiRequest *request = new ApiRequest(this);
         connect(request, SIGNAL(finished(QString)), this, SLOT(savedImage(QString)));
-        if (mMode == "MESSAGE") request->startRequest("photos.saveMessagesPhoto", args);
-        else if (mMode == "WALL") request->startRequest("photos.saveWallPhoto", args);
+        if (mMode == "MESSAGE") request->call("photos.saveMessagesPhoto", args);
+        else if (mMode == "WALL") request->call("photos.saveWallPhoto", args);
     } else qDebug() << "Failture:" << reply->errorString();
 }
 
@@ -88,15 +88,15 @@ void Photos::uploadFileToServer(QString url) {
 
 void Photos::api_getMessagesUploadServer() {
     ApiRequest *request = new ApiRequest(this);
-    connect(request, SIGNAL(finished(QString)), this, SLOT(gotServer(QString)));
-    request->startRequest("photos.getMessagesUploadServer", QHash<QString, QString>());
+    connect(request, SIGNAL(gotResponse(QString)), this, SLOT(gotServer(QString)));
+    request->call("photos.getMessagesUploadServer", QHash<QString, QString>());
 }
 
 void Photos::api_getWallUploadServer() {
     ApiRequest *request = new ApiRequest(this);
-    connect(request, SIGNAL(finished(QString)), this, SLOT(gotServer(QString)));
+    connect(request, SIGNAL(gotResponse(QString)), this, SLOT(gotServer(QString)));
 
     QHash<QString, QString> args;
     if (mGroupId != 0) args["group_id"] = QString::number(mGroupId);
-    request->startRequest("photos.getWallUploadServer", args);
+    request->call("photos.getWallUploadServer", args);
 }

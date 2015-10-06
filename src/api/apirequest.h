@@ -14,21 +14,20 @@ class ApiRequest : public QObject
 {
     Q_OBJECT
 
+    static const QString BASE_URL = "https://api.vk.com/method/";
+
+    QString version_;
+
 public:
-    ApiRequest(QObject *parent = 0);
+    ApiRequest(QObject *parent = 0) = delete;
+    ApiRequest(const QString &_version, QObject *parent = 0);
+    void call(const QString &_method, const QHash<QString, QString> &args) const;
 
 signals:
-    void finished(QString jsonData);
-
-public slots:
-    void startRequest(QString method, QHash<QString, QString> args);
+    void gotResponse(const QJsonObject &_jsonData);
 
 private slots:
-    void httpFinished(QNetworkReply *rep);
-
-private:
-    QString BASE_URL;
-    QString API_VERSION;
+    void onRequestFinished(QNetworkReply *rep);
 };
 
 #endif // APIREQUEST_H
