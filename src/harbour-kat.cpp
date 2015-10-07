@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     QScopedPointer<FileDownloader> fileDownloader(new FileDownloader(view.data()));
     QScopedPointer<NotificationHelper> notificationHelper(new NotificationHelper(view.data()));
     QScopedPointer<Photos> photos(new Photos(view.data()));
-    QScopedPointer<ApiRequest> api(new Api(CURRENT_API_VERSION, view.data()));
+    QScopedPointer<ApiRequest> api(new ApiRequest(CURRENT_API_VERSION, view.data()));
     QScopedPointer<Storage> storage(new Storage(view.data()));
     QScopedPointer<Session> session(new Session(view.data()));
 

@@ -10,7 +10,7 @@ public:
     explicit Session(QObject *parent = 0);
 
     static void setUserId(int _userId);
-    static int getUserId() const;
+    static int getUserId();
 
 signals:
 

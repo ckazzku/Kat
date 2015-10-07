@@ -11,12 +11,13 @@
 #include <QVariant>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
+#include <QSharedPointer>
 
 class Storage : public QObject
 {
     Q_OBJECT
 public:
-    static const QString DB_NAME = "harbour-kat-db";
+    static const QString DB_NAME;
 
     explicit Storage(QObject *parent = 0);
     ~Storage();
@@ -24,12 +25,12 @@ public:
     QString getAccessToken() const;
 
     void    putSettings(const QString &_key, const QString &_value);
-    QString getSettings(const QString &_key) const;
+    QString getSettings(const QString &_key, const QString &_default="") const;
 
     void    putMyName(const QString &_firstName, const QString &_lastName);
     void    putMyAvatar(const QString &_filename);
-    void    getMyName() const;
-    void    getMyAvatar() const;
+    QString    getMyName() const;
+    QString    getMyAvatar() const;
     void    putUserInfo(int _userId, const QString &_firstName, const QString &_lastName, const QString &_avatarFilename);
 
 
@@ -41,11 +42,11 @@ public slots:
 private:
     QSqlDatabase db_;
 
-    QSharedPointer<QSqlQuery> execQuery(const QSqlQuery &_query, const QVariantList &_data) const;
+    QSharedPointer<QSqlQuery> execQuery(const QString &_query, const QVariantList &_data) const;
     void    putKeyval(const QString &_table, const QString &_key, const QString &_value);
     QString getKeyval(const QString &_table, const QString &_key, const QString &_default="") const;
+    QString fetchFirst(const QSharedPointer<QSqlQuery> &_query, const QString &_default="") const;
 
     QString getPathToDatabase() const;
 };
-
 #endif // STORAGE_H

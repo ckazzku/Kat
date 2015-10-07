@@ -1,6 +1,9 @@
 #include "storage.h"
 #include "session.h"
 #include <QException>
+#include <QSqlError>
+
+const QString Storage::DB_NAME = "harbour-kat-db";
 
 Storage::Storage(QObject *parent) :
     QObject(parent)
@@ -13,7 +16,7 @@ Storage::Storage(QObject *parent) :
     }
 
     // TODO: handle errors
-    execQuery("CREATE TABLE IF NOT EXISTS settings (key TEXT UNIQUE, value TEXT)");
+    execQuery("CREATE TABLE IF NOT EXISTS settings (key TEXT UNIQUE, value TEXT)", {});
     execQuery("CREATE TABLE IF NOT EXISTS messages (id           INTEGER UNIQUE, \
                                                     chat_id      INTEGER,  \
                                                     user_id      INTEGER, \
@@ -25,18 +28,18 @@ Storage::Storage(QObject *parent) :
                                                     body         TEXT,  \
                                                     geo          TEXT,  \
                                                     attachments  TEXT,  \
-                                                    fwd_messages TEXT)");
+                                                    fwd_messages TEXT)", {});
     execQuery("CREATE TABLE IF NOT EXISTS users (id         INTEGER UNIQUE,  \
                                                     first_name TEXT, \
                                                     last_name  TEXT, \
-                                                    avatar     TEXT)");
+                                                    avatar     TEXT)", {});
 }
 
 Storage::~Storage() {
     db_.close();
 }
 
-QSharedPointer<QSqlQuery> Storage::execQuery(const QString &_query, const QVariantList &_data) {
+QSharedPointer<QSqlQuery> Storage::execQuery(const QString &_query, const QVariantList &_data) const {
     QSharedPointer<QSqlQuery> query(new QSqlQuery());
     query->prepare(_query);
     for (const auto &val: _data) {
@@ -46,7 +49,7 @@ QSharedPointer<QSqlQuery> Storage::execQuery(const QString &_query, const QVaria
         return query;
     } else {
         qDebug() << query->lastError();
-        return nullptr;
+        return QSharedPointer<QSqlQuery>();
     }
 }
 
@@ -54,21 +57,31 @@ void Storage::putKeyval(const QString &_table, const QString &_key, const QStrin
     execQuery("INSERT OR REPLACE INTO ? VALUES (?, ?)", {_table, _key, _value});
 }
 
-QString Storage::getKeyval(const QString &_table, const QString &_key, const QString &_default="") const {
+QString Storage::getKeyval(const QString &_table, const QString &_key, const QString &_default) const {
     auto query = execQuery("SELECT value FROM ? WHERE key=?", {_table, _key});
-    if (query && query->next()) {
-        return query->value(0).toString();
+    return fetchFirst(query, _default);
+}
+
+QString Storage::fetchFirst(const QSharedPointer<QSqlQuery> &_query, const QString &_default) const
+{
+    if (_query && _query->next()) {
+        return _query->value(0).toString();
     } else {
         return _default;
     }
 }
 
-QString Storage::getAccessToken() {
-    return getSettings("access_token", "");
+QString Storage::getAccessToken() const {
+    return getSettings("access_token");
 }
 
 void Storage::putSettings(const QString &_key, const QString &_value) {
     putKeyval("settings", _key, _value);
+}
+
+QString Storage::getSettings(const QString &_key, const QString &_default) const
+{
+    return getKeyval("settings", _key, _default);
 }
 
 void Storage::putMyName(const QString &_firstName, const QString &_lastName) {
@@ -78,16 +91,18 @@ void Storage::putMyName(const QString &_firstName, const QString &_lastName) {
 
 void Storage::putMyAvatar(const QString &_filename) {
     execQuery("UPDATE OR IGNORE users set user_avatar=? where id=?", {_filename, Session::getUserId()});
-    execQuery("INSERT OR IGNORE INTO users (id, user_avatar) VALUES (?, ?)", {user_id, _filename});
+    execQuery("INSERT OR IGNORE INTO users (id, user_avatar) VALUES (?, ?)", {Session::getUserId(), _filename});
 }
 
-void Storage::getMyName() const {
+QString Storage::getMyName() const {
     // TODO: ability to change first/last name order
-    return execQuery("SELECT last_name||' '||first_name from users where id=?", {Session::getUserId()});
+    auto query = execQuery("SELECT last_name||' '||first_name from users where id=?", {Session::getUserId()});
+    return fetchFirst(query, "");
 }
 
-void Storage::getMyAvatar() const {
-    return execQuery("SELECT user_avatar from users where id=?", {Session::getUserId()});
+QString Storage::getMyAvatar() const {
+    auto query = execQuery("SELECT user_avatar from users where id=?", {Session::getUserId()});
+    return fetchFirst(query, "");
 }
 
 void Storage::putUserInfo(int _userId, const QString &_firstName, const QString &_lastName, const QString &_avatarFilename)
@@ -96,7 +111,7 @@ void Storage::putUserInfo(int _userId, const QString &_firstName, const QString 
 }
 
 
-QString Storage::getPathToDatabase() {
+QString Storage::getPathToDatabase() const {
     QString pathToDatabase;
 
     QStringList cacheLocation = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
