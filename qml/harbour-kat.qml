@@ -29,8 +29,21 @@ ApplicationWindow
     id: application
 
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
+
+    function onApiResponse(method, seq, data) {
+        console.log(method, seq, data);
+    }
+
     initialPage: {
         StorageJS.initDatabase()
+        /*
+        Api.gotResponse.connect(onApiResponse)
+        Api.call("newsfeed.get",{
+                     filters: "post",
+                     return_banned:0,
+                     fields: "photo_100"
+                 })
+                 */
 
         if (parseInt(StorageJS.readSettingsValue("start_page"), 10) === 1) {
             return Qt.createQmlObject("import QtQuick 2.0; import \"pages\"; Component { DialogsListPage {} }", application)

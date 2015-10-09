@@ -5,6 +5,7 @@
 #include <QJsonObject>
 
 const QString ApiRequest::BASE_URL = "https://api.vk.com/method/";
+int ApiRequest::seq_ = 0;
 
 ApiRequest::ApiRequest(const QString &_version, QObject *parent) :
     QObject(parent),
@@ -25,20 +26,32 @@ void ApiRequest::call(const QString &_method, const QHash<QString, QString> &_ar
     qDebug() << "Request: " << url;
 
     QNetworkAccessManager *mgr = new QNetworkAccessManager(this);
-    connect(mgr, &QNetworkAccessManager::finished, this, &ApiRequest::onRequestFinished);
+    connect(mgr, &QNetworkAccessManager::finished, std::bind(&ApiRequest::onRequestFinished, this, _method, ApiRequest::seq_, std::placeholders::_1));
     connect(mgr, &QNetworkAccessManager::finished, mgr, &QNetworkAccessManager::deleteLater);
 
     mgr->get(QNetworkRequest(QUrl(url)));
+    ApiRequest::seq_++;
 }
 
-void ApiRequest::onRequestFinished(QNetworkReply *rep) {
-    if (rep->error() == QNetworkReply::NoError) {
+void ApiRequest::call(const QString &_method, const QJsonObject &_args)
+{
+    QHash<QString, QString> args;
 
-        QJsonDocument document = QJsonDocument::fromJson(rep->readAll());
+    for (auto &key: _args.keys()) {
+        args[key] = _args[key].toString();
+    }
+
+    this->call(_method, args);
+}
+
+void ApiRequest::onRequestFinished(const QString &_method, int _seq, QNetworkReply *_rep) {
+    if (_rep->error() == QNetworkReply::NoError) {
+
+        QJsonDocument document = QJsonDocument::fromJson(_rep->readAll());
         QJsonObject object = document.object();
         // TODO: store cookies
-        emit gotResponse(object);
+        emit gotResponse(_method, _seq, object);
     } else {
-        qDebug() << "Failure:" << rep->errorString();
+        qDebug() << "Failure:" << _rep->errorString();
     }
 }
