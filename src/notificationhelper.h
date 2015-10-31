@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-//#include "mlite5/MNotification"
+#include "mlite5/MNotification"
 
 class NotificationHelper : public QObject
 {
@@ -11,7 +11,8 @@ class NotificationHelper : public QObject
 public:
     explicit NotificationHelper(QObject *parent = 0);
 
-    Q_INVOKABLE void sendNotification(const QString &body, const QString &summary);
+    Q_INVOKABLE void sendNotification(const QString &body, const QString &summary, bool close);
+    Q_INVOKABLE void activateLed(bool activate);
 
 signals:
 
@@ -21,7 +22,7 @@ protected:
     void timerEvent(QTimerEvent *event);
 
 private:
-//    MNotification notification;
+    MNotification notification;
 };
 
 #endif // NOTIFICATIONHELPER_H

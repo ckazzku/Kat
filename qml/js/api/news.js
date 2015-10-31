@@ -31,9 +31,7 @@ function api_getLastNews(startFrom) {
         fields: "photo_100"
     }
     if (startFrom.length > 0) data.start_from = startFrom
-    RequestAPI.sendRequest("newsfeed.get",
-                           data,
-                           callback_getLastNews)
+    Api.call("newsfeed.get", data, "callback_getLastNews");
 }
 
 

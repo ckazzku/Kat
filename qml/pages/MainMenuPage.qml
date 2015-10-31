@@ -48,9 +48,9 @@ Page {
     ]
 
     function doStartUpdate() {
-        if (StorageJS.readSettingsValue("user_id")) {
-            var fullUserName = StorageJS.readFullUserName()
-            var avatarFileName = StorageJS.readUserAvatar()
+        if (Storage.getSettings("user_id")) {
+            var fullUserName = Storage.getMyName()
+            var avatarFileName = Storage.getMyAvatar()
             updateUserNameAndAvatar(fullUserName, cachePath + avatarFileName)
             // TODO Calculating unread messages counter with cached data
 
@@ -59,7 +59,7 @@ Page {
     }
 
     function doForceUpdate() {
-        UsersAPI.api_getUserNameAndAvatar(StorageJS.readSettingsValue("user_id"))
+        UsersAPI.api_getUserNameAndAvatar(Storage.getSettings("user_id"))
         MessagesAPI.api_getUnreadMessagesCounter(false)
     }
 
@@ -68,14 +68,23 @@ Page {
         userFullName = name
         userAvatarUrl = avatarUrl
     }
+
+    function updateUnreadMessagesCounter(counter) {
+        console.log("updateUnreadMessagesCounter(" + counter + ")")
+        mainMenu.model.setProperty(1, "counter", counter ? counter : "")
+    }
+
+    function generateModelFromArray() {
+        for (var index in mainMenuPage.model) {
+            mainMenu.model.append(mainMenuPage.model[index])
+        }
+    }
+
     SilicaListView {
+        id: mainMenu
         anchors.fill: parent
 
-        function updateUnreadMessagesCounter(counter) {
-    //        mainMenu.model.setProperty(1, "counter", counter ? counter : "")
-        }
-
-        model: mainMenuPage.model
+        model: ListModel {}
 
         header: PageHeader {
             title: userFullName
@@ -106,8 +115,11 @@ Page {
                     anchors.left: menuItemText.right
                     anchors.leftMargin: Theme.paddingMedium
                     anchors.verticalCenter: parent.verticalCenter
-                    width: childrenRect.width < childrenRect.height ? childrenRect.height : childrenRect.width + 2 * Theme.paddingSmall
-                    height: childrenRect.height
+                    width:
+                        menuItemCounter.width < menuItemCounter.height ?
+                            menuItemCounter.height :
+                            menuItemCounter.width + 2 * Theme.paddingSmall
+                    height: menuItemCounter.height
                     radius: 10
                     color: Theme.highlightColor
                     visible: item.counter !== ''
@@ -175,5 +187,16 @@ Page {
         VerticalScrollDecorator {}
     }
 
-    Component.onCompleted: doStartUpdate()
+    Component.onCompleted: {
+        generateModelFromArray()
+        doStartUpdate()
+
+        MessagesAPI.signaller.gotUnreadCount.connect(updateUnreadMessagesCounter)
+        UsersAPI.signaller.gotUserNameAndAvatar.connect(updateUserNameAndAvatar)
+    }
+
+    Component.onDestruction: {
+        MessagesAPI.signaller.gotUnreadCount.disconnect(updateUnreadMessagesCounter)
+        UsersAPI.signaller.gotUserNameAndAvatar.disconnect(updateUserNameAndAvatar)
+    }
 }

@@ -16,28 +16,32 @@
 class Storage : public QObject
 {
     Q_OBJECT
+
+    Storage(QObject* parent=0);
+    static QSharedPointer<Storage> instance_;
 public:
     static const QString DB_NAME;
+    static QSharedPointer<Storage> instance(QObject *parent = 0);
 
-    explicit Storage(QObject *parent = 0);
     ~Storage();
 
-    QString getAccessToken() const;
+    Q_INVOKABLE QString getAccessToken() const;
 
-    void    putSettings(const QString &_key, const QString &_value);
-    QString getSettings(const QString &_key, const QString &_default="") const;
+    Q_INVOKABLE void    putSettings(const QString &_key, const QString &_value);
+    Q_INVOKABLE QString getSettings(const QString &_key, const QString &_default="") const;
 
-    void    putMyName(const QString &_firstName, const QString &_lastName);
-    void    putMyAvatar(const QString &_filename);
-    QString    getMyName() const;
-    QString    getMyAvatar() const;
-    void    putUserInfo(int _userId, const QString &_firstName, const QString &_lastName, const QString &_avatarFilename);
+    Q_INVOKABLE void       putMyName(const QString &_firstName, const QString &_lastName);
+    Q_INVOKABLE void       putMyAvatar(const QString &_filename);
+    Q_INVOKABLE QString    getMyName() const;
+    Q_INVOKABLE QString    getMyAvatar() const;
+    Q_INVOKABLE void    putUserInfo(int _userId, const QString &_firstName, const QString &_lastName, const QString &_avatarFilename);
 
 
 
 signals:
 
 public slots:
+    bool clearCache();
 
 private:
     QSqlDatabase db_;

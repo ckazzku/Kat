@@ -4,6 +4,7 @@
 #include <QSqlError>
 
 const QString Storage::DB_NAME = "harbour-kat.db";
+QSharedPointer<Storage> Storage::instance_ = QSharedPointer<Storage>();
 
 Storage::Storage(QObject *parent) :
     QObject(parent)
@@ -35,6 +36,14 @@ Storage::Storage(QObject *parent) :
                                                     avatar     TEXT)", {});
 }
 
+QSharedPointer<Storage> Storage::instance(QObject *parent)
+{
+    if (instance_.isNull()){
+        instance_ = QSharedPointer<Storage>(new Storage(parent));
+    }
+    return instance_;
+}
+
 Storage::~Storage() {
     db_.close();
 }
@@ -54,11 +63,11 @@ QSharedPointer<QSqlQuery> Storage::execQuery(const QString &_query, const QVaria
 }
 
 void Storage::putKeyval(const QString &_table, const QString &_key, const QString &_value) {
-    execQuery("INSERT OR REPLACE INTO ? VALUES (?, ?)", {_table, _key, _value});
+    execQuery("INSERT OR REPLACE INTO "+_table+" VALUES (?, ?)", {_key, _value});
 }
 
 QString Storage::getKeyval(const QString &_table, const QString &_key, const QString &_default) const {
-    auto query = execQuery("SELECT value FROM ? WHERE key=?", {_table, _key});
+    auto query = execQuery("SELECT value FROM "+_table+" WHERE key=?", {_key});
     return fetchFirst(query, _default);
 }
 
@@ -129,4 +138,19 @@ QString Storage::getPathToDatabase() const {
     qDebug() << "Path to database:" << pathToDatabase;
 
     return pathToDatabase;
+}
+
+bool Storage::clearCache() {
+    qDebug() << "Storage::clearCache()";
+
+    if (!db_.open()) false;
+
+    QSqlQuery query("DELETE FROM messages");
+    bool result = query.numRowsAffected() != -1;
+    result = result && query.exec("DELETE FROM dialogs");
+    result = result && query.exec("DELETE FROM users");
+    result = result && query.exec("DELETE FROM user_info");
+
+    db_.close();
+    return result;
 }

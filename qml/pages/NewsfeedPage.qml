@@ -35,7 +35,7 @@ Page {
     property Item contextMenu
 
     function doStartUpdate() {
-        if (StorageJS.readSettingsValue("user_id")) {
+        if (Storage.getSettings("user_id")) {
             loadingIndicator.running = true
             newsfeedList.model.clear()
             nextFrom = ""
@@ -67,7 +67,7 @@ Page {
     }
 
     function shownotification(text) {
-        notificationHelper.sendNotification("", text)
+        notificationHelper.sendNotification("", text, true)
     }
 
     BusyIndicator {

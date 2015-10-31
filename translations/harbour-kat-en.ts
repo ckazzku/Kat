@@ -38,64 +38,68 @@
         <source>Nostariel</source>
         <translation>Nostariel</translation>
     </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="37"/>
+        <source>Ckazzku</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DialogPage</name>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="181"/>
+        <location filename="../qml/pages/DialogPage.qml" line="258"/>
         <source>Загрузить больше</source>
-        <translation>Load more</translation>
+        <translation type="unfinished">Load more</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="197"/>
+        <location filename="../qml/pages/DialogPage.qml" line="274"/>
         <source>Был(a) в сети: %1</source>
-        <translation>Last online at: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="235"/>
+        <location filename="../qml/pages/DialogPage.qml" line="312"/>
         <source>Копировать текст</source>
-        <translation>Copy text</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="280"/>
+        <location filename="../qml/pages/DialogPage.qml" line="380"/>
         <source>Сообщение:</source>
-        <translation>Message:</translation>
+        <translation type="unfinished">Message:</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="281"/>
+        <location filename="../qml/pages/DialogPage.qml" line="381"/>
         <source>Сообщение</source>
-        <translation>Message</translation>
+        <translation type="unfinished">Message</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="291"/>
+        <location filename="../qml/pages/DialogPage.qml" line="391"/>
         <source>Обновить</source>
-        <translation>Refresh</translation>
+        <translation type="unfinished">Refresh</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="301"/>
+        <location filename="../qml/pages/DialogPage.qml" line="399"/>
         <source>Прикрепить изображение</source>
-        <translation>Attach image</translation>
+        <translation type="unfinished">Attach image</translation>
     </message>
 </context>
 <context>
     <name>DialogsListPage</name>
     <message>
-        <location filename="../qml/pages/DialogsListPage.qml" line="117"/>
+        <location filename="../qml/pages/DialogsListPage.qml" line="169"/>
         <source>Новое сообщение</source>
         <translation>New message</translation>
     </message>
-    <message>
-        <location filename="../qml/pages/DialogsListPage.qml" line="123"/>
+        <location filename="../qml/pages/DialogsListPage.qml" line="175"/>
         <source>Обновить</source>
         <translation>Refresh</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogsListPage.qml" line="129"/>
+        <location filename="../qml/pages/DialogsListPage.qml" line="181"/>
         <source>Сообщения</source>
         <translation>Messages</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogsListPage.qml" line="148"/>
+        <location filename="../qml/pages/DialogsListPage.qml" line="200"/>
         <source>Загрузить больше</source>
         <translation>Load more</translation>
     </message>
@@ -254,57 +258,77 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="36"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="37"/>
         <source>Настройки</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="40"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="41"/>
         <source>Стартовая страница</source>
         <translation>Start page</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="44"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="45"/>
         <source>Новости</source>
         <translation>Newsfeed</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="45"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="46"/>
         <source>Сообщения</source>
         <translation>Messages</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="55"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="53"/>
         <source>Создать с обложки</source>
         <translation>Create from cover</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="59"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="57"/>
         <source>Сообщение</source>
         <translation>Message</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="60"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="58"/>
         <source>Запись на стене</source>
         <translation>Wall post</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="70"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="65"/>
         <source>Предпочитаемое качество видео</source>
         <translation>Preferred video quality</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="87"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="79"/>
+        <source>Обновление сообщений</source>
+        <translation>Update messages per</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="100"/>
+        <source>По возможности быть offline</source>
+        <translation>Stay offline if it's possible </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="93"/>
+        <source>Обновлять сообщения вручную</source>
+        <translation>Refresh messages manually</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="107"/>
         <source>Отображать разделитель в сообщениях</source>
         <translation>Display separators in messages</translation>
+    </message>
+    <message>
+    <location filename="../qml/pages/SettingsPage.qml" line="117"/>
+        <source>Очистить кэш</source>
+        <translation>Clear cache</translation>
     </message>
 </context>
 <context>
     <name>wall</name>
     <message>
         <location filename="../qml/js/api/wall.js" line="58"/>
-        <source>������������������������</source>
-        <translation type="unfinished"></translation>
+        <source>Опубликовано</source>
+        <translation>Posted</translation>
     </message>
 </context>
 </TS>

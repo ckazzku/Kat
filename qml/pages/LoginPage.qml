@@ -32,8 +32,8 @@ Dialog {
     function checkUrl(url) {
         if (AuthJS.checkUrl(url) !== 1) {
             console.log(AuthJS.accessToken)
-            StorageJS.storeSettingsValue("access_token", AuthJS.accessToken)
-            StorageJS.storeSettingsValue("user_id", AuthJS.userId)
+            Storage.putSettings("access_token", AuthJS.accessToken)
+            Storage.putSettings("user_id", AuthJS.userId)
             loginView.stop()
             loginPage.close()
         }

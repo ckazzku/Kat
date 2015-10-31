@@ -12,11 +12,12 @@
 # The name of your application
 TARGET = harbour-kat
 TEMPLATE = app
+DEFINES += Q_OS_SAILFISH
 
 QT += dbus sql network quick widgets qml
 
 CONFIG += link_pkgconfig sailfishapp c++11
-#PKGCONFIG += mlite5
+PKGCONFIG += mlite5
 
 HEADERS += \
     src/filedownloader.h \
@@ -53,7 +54,10 @@ OTHER_FILES += \
     README.md \
     .gitignore \
     qml/pages/NewWallPostPage.qml \
-    qml/js/api/groups.js
+    qml/js/api/groups.js \
+    qml/js/types.js \
+    qml/js/api/account.js \
+    qml/js/signals.js
 
 CONFIG += sailfishapp_i18n
 TRANSLATIONS += \

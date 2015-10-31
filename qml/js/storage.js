@@ -22,161 +22,6 @@
 .import QtQuick.LocalStorage 2.0 as LS
 
 
-var DATABASE_VERSION = "4"
-
-function getDatabase() {
-    return LS.LocalStorage.openDatabaseSync("harbour-kat-db", "", "Properties and data", 100000)
-}
-
-function initDatabase() {
-    console.log("initDatabase()")
-    var db = getDatabase()
-    console.log("db.version = " + db.version)
-    if (db.version === "") {
-        db.changeVersion(db.version, DATABASE_VERSION, function(tx) {
-            console.log("... create tables")
-            tx.executeSql("CREATE TABLE IF NOT EXISTS settings (key TEXT UNIQUE, value TEXT)")
-            tx.executeSql("CREATE TABLE IF NOT EXISTS user_info (key TEXT UNIQUE, value TEXT)")
-            tx.executeSql('CREATE TABLE IF NOT EXISTS messages (id           INTEGER UNIQUE, ' +
-                                                               'chat_id      INTEGER, ' +
-                                                               'user_id      INTEGER, ' +
-                                                               'from_id      INTEGER, ' +
-                                                               'date         INTEGER, ' +
-                                                               'is_read      INTEGER, ' +
-                                                               'is_out       INTEGER, ' +
-                                                               'title        TEXT, ' +
-                                                               'body         TEXT, ' +
-                                                               'geo          TEXT, ' +
-                                                               'attachments  TEXT, ' +
-                                                               'fwd_messages TEXT)')
-            tx.executeSql('CREATE TABLE IF NOT EXISTS users (id         INTEGER UNIQUE, ' +
-                                                            'first_name TEXT, ' +
-                                                            'last_name  TEXT, ' +
-                                                            'avatar     TEXT)')
-        })
-    } else if (db.version !== DATABASE_VERSION) {
-        if (db.version === '3') db.transaction( function (tx) {
-            tx.executeSql('DROP TABLE messages');
-        })
-        if (db.version < '4') {
-            db.changeVersion(db.version, DATABASE_VERSION, function(tx) {
-                console.log("... create new tables")
-                tx.executeSql('CREATE TABLE IF NOT EXISTS messages (id           INTEGER UNIQUE, ' +
-                                                                   'chat_id      INTEGER, ' +
-                                                                   'user_id      INTEGER, ' +
-                                                                   'from_id      INTEGER, ' +
-                                                                   'date         INTEGER, ' +
-                                                                   'is_read      INTEGER, ' +
-                                                                   'is_out       INTEGER, ' +
-                                                                   'body         TEXT, ' +
-                                                                   'geo          TEXT, ' +
-                                                                   'attachments  TEXT, ' +
-                                                                   'fwd_messages TEXT)')
-                tx.executeSql('CREATE TABLE IF NOT EXISTS users (id         INTEGER UNIQUE, ' +
-                                                                'first_name TEXT, ' +
-                                                                'last_name  TEXT, ' +
-                                                                'avatar     TEXT)')
-                tx.executeSql('CREATE TABLE IF NOT EXISTS dialogs (id INTEGER UNIQUE, title TEXT)')
-            })
-        }
-        db.changeVersion(db.version, DATABASE_VERSION, function(tx) {
-            console.log("... recreate tables")
-            tx.executeSql("DELETE FROM settings")
-            tx.executeSql("DELETE FROM user_info")
-        })
-    }
-}
-
-
-// -------------- Functions for saving and reading settings parameters --------------
-
-function storeSettingsValue(key, value) {
-    console.log("storeSettingsData()")
-    var db = getDatabase()
-    if (!db) { return }
-    db.transaction( function(tx) {
-        console.log("... update it")
-        tx.executeSql("INSERT OR REPLACE INTO settings VALUES (\"" + key + "\", \"" + value + "\")")
-    })
-}
-
-function readSettingsValue(key) {
-    console.log("readData()")
-    var db = getDatabase()
-    if (!db) { return }
-    var value = ""
-    db.transaction( function(tx) {
-        console.log("... read object")
-        var result = tx.executeSql("SELECT value FROM settings WHERE key=\"" + key + "\"")
-        if (result.rows.length === 1) {
-            value = result.rows[0].value
-        }
-    })
-    console.log(value)
-    return value
-}
-
-
-// -------------- Functions for saving user data --------------
-
-function saveUserName(first_name, last_name) {
-    console.log("saveUserName()")
-    var db = getDatabase()
-    if (!db) { return }
-    db.transaction( function(tx) {
-        console.log("... saving ...")
-        tx.executeSql("INSERT OR REPLACE INTO user_info VALUES (\"first_name\", \"" + first_name + "\")")
-        tx.executeSql("INSERT OR REPLACE INTO user_info VALUES (\"last_name\", \"" + last_name + "\")")
-    })
-}
-
-function saveUserAvatar(fileName) {
-    console.log("saveUserAvatar()")
-    var db = getDatabase()
-    if (!db) { return }
-    db.transaction( function(tx) {
-        console.log("... saving ...")
-        tx.executeSql("INSERT OR REPLACE INTO user_info VALUES (\"user_avatar\", \"" + fileName + "\")")
-    })
-}
-
-
-// -------------- Functions for reading user data --------------
-
-function readFullUserName() {
-    console.log("readFullUserName()")
-    var db = getDatabase()
-    if (!db) { return }
-    var value = ""
-    db.transaction( function(tx) {
-        console.log("... reading ...")
-        var result = tx.executeSql(
-                    "SELECT value FROM user_info WHERE key=\"first_name\" OR key=\"last_name\"")
-        if (result.rows.length === 2) {
-            value = result.rows[0].value + " " + result.rows[1].value
-        }
-    })
-    console.log(value)
-    return value
-}
-
-function readUserAvatar() {
-    console.log("readUserAvatar()")
-    var db = getDatabase()
-    if (!db) { return }
-    var value = ""
-    db.transaction( function(tx) {
-        console.log("... reading ...")
-        var result = tx.executeSql("SELECT value FROM user_info WHERE key=\"user_avatar\"")
-        if (result.rows.length === 1) {
-            value = result.rows[0].value
-        }
-    })
-    console.log(value)
-    return value
-}
-
-
 // -------------- Cache functions --------------
 
 function prepareMessagePreview(body, attachments, fwd_messages) {
@@ -239,7 +84,7 @@ function getLastDialogs() {
 }
 
 function getLastMessagesForDialog(chatId) {
-    console.log('getLastMessagesForDialog()')
+    console.log("getLastMessagesForDialog(" + chatId + ")")
     var db = getDatabase()
     if (!db) return
 
@@ -248,6 +93,8 @@ function getLastMessagesForDialog(chatId) {
     db.transaction( function (tx) {
         console.log('... reading ...')
         var result = tx.executeSql('SELECT messages.id          AS id, ' +
+                                          'messages.from_id     AS from_id, ' +
+                                          'messages.user_id     AS user_id, ' +
                                           'messages.is_read     AS is_read, ' +
                                           'messages.is_out      AS is_out, ' +
                                           'messages.body        AS body, ' +
@@ -265,6 +112,7 @@ function getLastMessagesForDialog(chatId) {
             date.setTime(parseInt(item.date) * 1000)
             value[i] = {
                 mid:             item.id,
+                fromId:          item.from_id ? item.from_id : item.user_id,
                 readState:       item.is_read,
                 out:             item.is_out,
                 message:         item.body ? item.body.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') :
@@ -300,7 +148,7 @@ function saveAnotherUserInfo(userId, firstName, lastName, avatarName) {
 
 function saveMessage(id, chatId, userId, fromId, date, isRead, isOut, title, body, geo, attachments,
                      fwd_messages) {
-    console.log('saveMessage()')
+    console.log("saveMessage(" + id + ")")
     var db = getDatabase()
     if (!db) return
 
@@ -319,8 +167,8 @@ function saveMessage(id, chatId, userId, fromId, date, isRead, isOut, title, bod
                                             ( userId ? 'user_id, ' : '' ) +
                                             ( fromId ? 'from_id, ' : '' ) +
                                             ( date   ? 'date, '    : '' ) +
-                                            ( isRead ? 'is_read, ' : '' ) +
-                                            ( isOut  ? 'is_out, '  : '' ) +
+                     ( typeof isRead !== 'undefined' ? 'is_read, ' : '' ) +
+                     ( typeof isOut !== 'undefined'  ? 'is_out, '  : '' ) +
                                                        'body, ' +
                                                        'geo, ' +
                                                        'attachments, ' +
@@ -330,11 +178,32 @@ function saveMessage(id, chatId, userId, fromId, date, isRead, isOut, title, bod
                                        (userId ?        userId       + ', '   : '' ) +
                                        (fromId ?        fromId       + ', '   : '' ) +
                                        (date   ?        date         + ', '   : '' ) +
-                                       (isRead ?        isRead       + ', '   : '' ) +
-                                       (isOut  ?        isOut        + ', '   : '' ) +
+                      (typeof isRead !== 'undefined' ?  isRead       + ', '   : '' ) +
+                      (typeof isOut !== 'undefined'  ?  isOut        + ', '   : '' ) +
                                                        '?, ' +
                                                        '?, ' +
                                                        '?, ' +
                                                        '?)', values)
     })
+}
+
+function updateMessage(id, data) {
+    console.log("updateMessage(" + id + ")")
+
+    var db = getDatabase()
+    if (!db) return
+
+    var values = ''
+    for (var key in data) {
+        values += key + " = '" + JSON.stringify(data[key]) + "',"
+    }
+
+    if (values.length > 0) {
+        values = values.substring(0, values.length - 1)
+
+        db.transaction( function (tx) {
+            console.log('... updating ...')
+            tx.executeSql('UPDATE messages SET ' + values + ' WHERE id = ' + id)
+        })
+    }
 }

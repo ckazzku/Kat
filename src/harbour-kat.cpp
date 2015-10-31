@@ -23,9 +23,10 @@
 #include <QtQuick>
 #endif
 
-//#include <sailfishapp.h>
+#include <sailfishapp.h>
+
 #include <QApplication>
-#include <QScopedPointer>
+#include <QSharedPointer>
 #include <QQuickView>
 #include <QQmlContext>
 
@@ -35,6 +36,7 @@
 
 #include "filedownloader.h"
 #include "notificationhelper.h"
+#include "storage.h"
 #include "api/photos.h"
 #include "session.h"
 
@@ -42,20 +44,15 @@ const QString CURRENT_API_VERSION = "5.37";
 
 int main(int argc, char *argv[])
 {
-#ifdef OS_SAILFISH
-    QScopedPointer<QGuiApplication> application(SailfishApp::application(argc, argv));
-    QScopedPointer<QQuickView> view(SailfishApp::createView());
-#else
-    QApplication application(argc, argv);
-    QQuickView* view=new QQuickView();
-#endif
+    QSharedPointer<QGuiApplication> application(SailfishApp::application(argc, argv));
+    QQuickView* view = SailfishApp::createView();
 
-    QScopedPointer<FileDownloader> fileDownloader(new FileDownloader(view));
-    QScopedPointer<NotificationHelper> notificationHelper(new NotificationHelper(view));
-    QScopedPointer<Photos> photos(new Photos(view));
-    QScopedPointer<ApiRequest> api(new ApiRequest(CURRENT_API_VERSION, view));
-    QScopedPointer<Storage> storage(new Storage(view));
-    QScopedPointer<Session> session(new Session(view));
+    QSharedPointer<FileDownloader> fileDownloader(new FileDownloader(view));
+    QSharedPointer<NotificationHelper> notificationHelper(new NotificationHelper(view));
+    QSharedPointer<Photos> photos(new Photos(view));
+    QSharedPointer<ApiRequest> api(ApiRequest::instance(CURRENT_API_VERSION, view));
+    QSharedPointer<Storage> storage(Storage::instance(view));
+    QSharedPointer<Session> session(new Session(view));
 
     QUrl cachePath;
     QStringList cacheLocation = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
@@ -65,18 +62,19 @@ int main(int argc, char *argv[])
     view->rootContext()->setContextProperty("cachePath", cachePath);
     view->rootContext()->setContextProperty("fileDownloader", fileDownloader.data());
     view->rootContext()->setContextProperty("notificationHelper", notificationHelper.data());
+    view->rootContext()->setContextProperty("storage", storage.data());
     view->rootContext()->setContextProperty("photos", photos.data());
 
     view->rootContext()->setContextProperty("Api", api.data());
     view->rootContext()->setContextProperty("Storage", storage.data());
     view->rootContext()->setContextProperty("Session", session.data());
-#ifdef OS_SAILFISH
+
     view->setSource(SailfishApp::pathTo("qml/harbour-kat.qml"));
-#else
-    view->setSource(QUrl("qrc:/qml/harbour-kat.qml"));
-#endif
+
+    api->setQuickObject(view->rootObject());
+
     view->show();
 
-    return application.exec();
+    return application->exec();
 }
 

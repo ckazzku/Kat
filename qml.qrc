@@ -1,2 +1,31 @@
-<RCC/>
-
+<RCC>
+    <qresource prefix="/">
+        <file>qml/harbour-kat.qml</file>
+    </qresource>
+    <qresource prefix="/cover">
+        <file>qml/cover/CoverPage.qml</file>
+    </qresource>
+    <qresource prefix="/pages">
+        <file>qml/pages/AboutPage.qml</file>
+        <file>qml/pages/ChatUsersPage.qml</file>
+        <file>qml/pages/DialogPage.qml</file>
+        <file>qml/pages/DialogsListPage.qml</file>
+        <file>qml/pages/ImagePage.qml</file>
+        <file>qml/pages/LoginPage.qml</file>
+        <file>qml/pages/MainMenuPage.qml</file>
+        <file>qml/pages/NewMessagePage.qml</file>
+        <file>qml/pages/NewsfeedPage.qml</file>
+        <file>qml/pages/NewWallPostPage.qml</file>
+        <file>qml/pages/OneNewsPage.qml</file>
+        <file>qml/pages/SettingsPage.qml</file>
+        <file>qml/pages/VideoPage.qml</file>
+    </qresource>
+    <qresource prefix="/views">
+        <file>qml/views/ContentItem.qml</file>
+        <file>qml/views/MessageContentItem.qml</file>
+        <file>qml/views/MessageItem.qml</file>
+        <file>qml/views/PostItem.qml</file>
+        <file>qml/views/UserItem.qml</file>
+        <file>qml/views/VideoPlayer.qml</file>
+    </qresource>
+</RCC>
