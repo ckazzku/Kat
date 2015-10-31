@@ -11,11 +11,12 @@
 
 # The name of your application
 TARGET = harbour-kat
+TEMPLATE = app
 
-QT += dbus sql network
+QT += dbus sql network quick widgets qml
 
 CONFIG += link_pkgconfig sailfishapp c++11
-PKGCONFIG += mlite5
+#PKGCONFIG += mlite5
 
 HEADERS += \
     src/filedownloader.h \

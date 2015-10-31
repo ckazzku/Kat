@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <functional>
 
 const QString ApiRequest::BASE_URL = "https://api.vk.com/method/";
 int ApiRequest::seq_ = 0;

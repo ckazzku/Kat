@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "mlite5/MNotification"
+//#include "mlite5/MNotification"
 
 class NotificationHelper : public QObject
 {
@@ -21,7 +21,7 @@ protected:
     void timerEvent(QTimerEvent *event);
 
 private:
-    MNotification notification;
+//    MNotification notification;
 };
 
 #endif // NOTIFICATIONHELPER_H

@@ -3,7 +3,7 @@
 #include <QException>
 #include <QSqlError>
 
-const QString Storage::DB_NAME = "harbour-kat-db";
+const QString Storage::DB_NAME = "harbour-kat.db";
 
 Storage::Storage(QObject *parent) :
     QObject(parent)
@@ -118,8 +118,15 @@ QString Storage::getPathToDatabase() const {
     if (cacheLocation.isEmpty()) pathToDatabase = getenv("$XDG_DATA_HOME/harbour-kat/");
     else pathToDatabase = QString("%1/").arg(cacheLocation.first());
     pathToDatabase.append("QML/OfflineStorage/Databases/");
+
+    QDir dir(pathToDatabase);
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+
     pathToDatabase.append(DB_NAME);
 
     qDebug() << "Path to database:" << pathToDatabase;
+
     return pathToDatabase;
 }

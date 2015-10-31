@@ -36,14 +36,13 @@ ApplicationWindow
 
     initialPage: {
         StorageJS.initDatabase()
-        /*
+
         Api.gotResponse.connect(onApiResponse)
         Api.call("newsfeed.get",{
                      filters: "post",
                      return_banned:0,
                      fields: "photo_100"
                  })
-                 */
 
         if (parseInt(StorageJS.readSettingsValue("start_page"), 10) === 1) {
             return Qt.createQmlObject("import QtQuick 2.0; import \"pages\"; Component { DialogsListPage {} }", application)

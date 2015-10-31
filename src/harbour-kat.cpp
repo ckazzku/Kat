@@ -23,8 +23,8 @@
 #include <QtQuick>
 #endif
 
-#include <sailfishapp.h>
-#include <QGuiApplication>
+//#include <sailfishapp.h>
+#include <QApplication>
 #include <QScopedPointer>
 #include <QQuickView>
 #include <QQmlContext>
@@ -42,15 +42,20 @@ const QString CURRENT_API_VERSION = "5.37";
 
 int main(int argc, char *argv[])
 {
+#ifdef OS_SAILFISH
     QScopedPointer<QGuiApplication> application(SailfishApp::application(argc, argv));
     QScopedPointer<QQuickView> view(SailfishApp::createView());
+#else
+    QApplication application(argc, argv);
+    QQuickView* view=new QQuickView();
+#endif
 
-    QScopedPointer<FileDownloader> fileDownloader(new FileDownloader(view.data()));
-    QScopedPointer<NotificationHelper> notificationHelper(new NotificationHelper(view.data()));
-    QScopedPointer<Photos> photos(new Photos(view.data()));
-    QScopedPointer<ApiRequest> api(new ApiRequest(CURRENT_API_VERSION, view.data()));
-    QScopedPointer<Storage> storage(new Storage(view.data()));
-    QScopedPointer<Session> session(new Session(view.data()));
+    QScopedPointer<FileDownloader> fileDownloader(new FileDownloader(view));
+    QScopedPointer<NotificationHelper> notificationHelper(new NotificationHelper(view));
+    QScopedPointer<Photos> photos(new Photos(view));
+    QScopedPointer<ApiRequest> api(new ApiRequest(CURRENT_API_VERSION, view));
+    QScopedPointer<Storage> storage(new Storage(view));
+    QScopedPointer<Session> session(new Session(view));
 
     QUrl cachePath;
     QStringList cacheLocation = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
@@ -65,10 +70,13 @@ int main(int argc, char *argv[])
     view->rootContext()->setContextProperty("Api", api.data());
     view->rootContext()->setContextProperty("Storage", storage.data());
     view->rootContext()->setContextProperty("Session", session.data());
-
+#ifdef OS_SAILFISH
     view->setSource(SailfishApp::pathTo("qml/harbour-kat.qml"));
+#else
+    view->setSource(QUrl("qrc:/qml/harbour-kat.qml"));
+#endif
     view->show();
 
-    return application->exec();
+    return application.exec();
 }
 
