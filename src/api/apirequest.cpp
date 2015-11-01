@@ -23,7 +23,7 @@ ApiRequest::ApiRequest(const QString &_version, QObject *parent) :
 {
 }
 
-void ApiRequest::call(const QString &_method, const QHash<QString, QString> &_args, const QString &_callback) {
+void ApiRequest::call(const QString &_method, const QHash<QString, QString> &_args, const QString &_callback, QQuickItem *ctx) {
     QString url = "";
     url.append(BASE_URL).append(_method).append("?v="+version_)
        .append("&access_token=").append(Storage::instance()->getAccessToken());
@@ -45,7 +45,7 @@ void ApiRequest::call(const QString &_method, const QHash<QString, QString> &_ar
     requestMutex_.unlock();
 }
 
-void ApiRequest::call(const QString &_method, const QJsonObject &_args, const QString &_callback)
+void ApiRequest::call(const QString &_method, const QJsonObject &_args, const QString &_callback, QQuickItem *ctx)
 {
     QHash<QString, QString> args;
 
@@ -53,7 +53,7 @@ void ApiRequest::call(const QString &_method, const QJsonObject &_args, const QS
         args[key] = _args[key].toString();
     }
 
-    this->call(_method, args);
+    this->call(_method, args, _callback, ctx);
 }
 
 void ApiRequest::onRequestFinished(const QString &_method, int _seq, const QString &_callback, QNetworkReply *_rep) {

@@ -21,7 +21,6 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "js/storage.js" as StorageJS
 
 ApplicationWindow
 {
@@ -33,20 +32,15 @@ ApplicationWindow
         //console.log(method, seq, JSON.stringify(data));
     }
 
-    initialPage: {
+    Component.onCompleted: {
         Api.gotResponse.connect(onApiResponse)
 
-
+        var pageSrc = "pages/NewsfeedPage.qml";
         if (parseInt(Storage.getSettings("start_page"), 10) === 1) {
-                return Qt.createQmlObject("import QtQuick 2.0; import \"pages\"; Component { DialogsListPage {} }", application)
-            } else {
-                return Qt.createQmlObject("import QtQuick 2.0; import \"pages\"; Component { NewsfeedPage {} }", application)
-            }
-    }
+            pageSrc = "pages/DialogsListPage.qml";
+        }
+        pageStack.replace(Qt.resolvedUrl(pageSrc))
 
-
-
-    Component.onCompleted: {
         pageStack.pushAttached(Qt.resolvedUrl("pages/MainMenuPage.qml"))
         if (!Storage.getSettings("user_id")) {
             pageStack.push(Qt.resolvedUrl("pages/LoginPage.qml"))

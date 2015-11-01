@@ -28,8 +28,8 @@ class ApiRequest : public QObject
 public:
     static QSharedPointer<ApiRequest> instance(const QString &_version, QObject *parent = 0);
 
-    Q_INVOKABLE void call(const QString &_method, const QHash<QString, QString> &_args, const QString &_callback=nullptr);
-    Q_INVOKABLE void call(const QString &_method, const QJsonObject &_args, const QString &_callback=nullptr);
+    Q_INVOKABLE void call(const QString &_method, const QHash<QString, QString> &_args, const QString &_callback=nullptr, QQuickItem *ctx=0);
+    Q_INVOKABLE void call(const QString &_method, const QJsonObject &_args, const QString &_callback=nullptr, QQuickItem *ctx=0);
 
     inline void setQuickObject(QQuickItem* _qml){qml_=_qml;}
 
