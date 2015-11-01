@@ -23,15 +23,16 @@ class ApiRequest : public QObject
     QMutex  requestMutex_;
     QQuickItem* qml_;
 
-    ApiRequest(const QString &_version, QObject *parent = 0);
+    ApiRequest(QObject *parent = 0);
     static QSharedPointer<ApiRequest> instance_;
 public:
-    static QSharedPointer<ApiRequest> instance(const QString &_version, QObject *parent = 0);
+    static QSharedPointer<ApiRequest> instance(QObject *parent = 0);
 
-    Q_INVOKABLE void call(const QString &_method, const QHash<QString, QString> &_args, const QString &_callback=nullptr, QQuickItem *ctx=0);
-    Q_INVOKABLE void call(const QString &_method, const QJsonObject &_args, const QString &_callback=nullptr, QQuickItem *ctx=0);
+    Q_INVOKABLE void call(const QString &_method, const QHash<QString, QString> &_args, const QString &_callback=nullptr);
+    Q_INVOKABLE void call(const QString &_method, const QJsonObject &_args, const QString &_callback=nullptr);
 
     inline void setQuickObject(QQuickItem* _qml){qml_=_qml;}
+    inline void setVersion(const QString &_version){version_=_version;}
 
 signals:
     void gotResponse(const QString &_method, int _seq, const QJsonObject &_jsonData);

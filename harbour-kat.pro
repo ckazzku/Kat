@@ -25,7 +25,8 @@ HEADERS += \
     src/api/apirequest.h \
     src/storage.h \
     src/api/photos.h \
-    src/session.h
+    src/session.h \
+    src/models/newsfeedmodel.h
 
 SOURCES += \
     src/harbour-kat.cpp \
@@ -34,7 +35,8 @@ SOURCES += \
     src/api/apirequest.cpp \
     src/storage.cpp \
     src/api/photos.cpp \
-    src/session.cpp
+    src/session.cpp \
+    src/models/newsfeedmodel.cpp
 
 OTHER_FILES += \
     qml/harbour-kat.qml \

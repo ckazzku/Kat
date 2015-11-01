@@ -40,6 +40,8 @@
 #include "api/photos.h"
 #include "session.h"
 
+#include "models/newsfeedmodel.h"
+
 const QString CURRENT_API_VERSION = "5.37";
 
 int main(int argc, char *argv[])
@@ -50,28 +52,32 @@ int main(int argc, char *argv[])
     QSharedPointer<FileDownloader> fileDownloader(new FileDownloader(view));
     QSharedPointer<NotificationHelper> notificationHelper(new NotificationHelper(view));
     QSharedPointer<Photos> photos(new Photos(view));
-    QSharedPointer<ApiRequest> api(ApiRequest::instance(CURRENT_API_VERSION, view));
+
+    QSharedPointer<ApiRequest> api(ApiRequest::instance(view));
     QSharedPointer<Storage> storage(Storage::instance(view));
-    QSharedPointer<Session> session(new Session(view));
+    QSharedPointer<Session> session(Session::instance(view));
 
     QUrl cachePath;
     QStringList cacheLocation = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
     if (cacheLocation.isEmpty()) cachePath = getenv("$XDG_CACHE_HOME/harbour-kat/");
     else cachePath = QString("%1/").arg(cacheLocation.first());
 
-    view->rootContext()->setContextProperty("cachePath", cachePath);
-    view->rootContext()->setContextProperty("fileDownloader", fileDownloader.data());
-    view->rootContext()->setContextProperty("notificationHelper", notificationHelper.data());
-    view->rootContext()->setContextProperty("storage", storage.data());
-    view->rootContext()->setContextProperty("photos", photos.data());
+    auto ctx = view->rootContext();
+    ctx->setContextProperty("cachePath", cachePath);
+    ctx->setContextProperty("fileDownloader", fileDownloader.data());
+    ctx->setContextProperty("notificationHelper", notificationHelper.data());
+    ctx->setContextProperty("photos", photos.data());
 
-    view->rootContext()->setContextProperty("Api", api.data());
-    view->rootContext()->setContextProperty("Storage", storage.data());
-    view->rootContext()->setContextProperty("Session", session.data());
+    ctx->setContextProperty("Api", api.data());
+    ctx->setContextProperty("Storage", storage.data());
+    ctx->setContextProperty("Session", session.data());
+
+    ctx->setContextProperty("newsModel", new NewsFeedModel(view));
 
     view->setSource(SailfishApp::pathTo("qml/harbour-kat.qml"));
 
     api->setQuickObject(view->rootObject());
+    api->setVersion(CURRENT_API_VERSION);
 
     view->show();
 

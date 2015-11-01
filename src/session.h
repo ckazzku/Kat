@@ -2,21 +2,25 @@
 #define SESSION_H
 
 #include <QObject>
+#include <QSharedPointer>
 
 class Session : public QObject
 {
     Q_OBJECT
-public:
-    explicit Session(QObject *parent = 0);
 
-    static void setUserId(int _userId);
-    static int getUserId();
+    Session(QObject* parent=0);
+    static QSharedPointer<Session> instance_;
+public:
+    static QSharedPointer<Session> instance(QObject *parent = 0);
+
+    void setUserId(int _userId);
+    int getUserId();
 
 signals:
 
 public slots:
 private:
-    static int userId_;
+    int userId_;
 };
 
 #endif // SESSION_H

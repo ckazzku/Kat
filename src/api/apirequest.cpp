@@ -9,21 +9,20 @@ const QString ApiRequest::BASE_URL = "https://api.vk.com/method/";
 int ApiRequest::seq_ = 0;
 QSharedPointer<ApiRequest> ApiRequest::instance_ = QSharedPointer<ApiRequest>();
 
-QSharedPointer<ApiRequest> ApiRequest::instance(const QString &_version, QObject *parent)
+QSharedPointer<ApiRequest> ApiRequest::instance(QObject *parent)
 {
     if (instance_.isNull()){
-        instance_ = QSharedPointer<ApiRequest>(new ApiRequest(_version, parent));
+        instance_ = QSharedPointer<ApiRequest>(new ApiRequest(parent));
     }
     return instance_;
 }
 
-ApiRequest::ApiRequest(const QString &_version, QObject *parent) :
-    QObject(parent),
-    version_(_version)
+ApiRequest::ApiRequest(QObject *parent) :
+    QObject(parent)
 {
 }
 
-void ApiRequest::call(const QString &_method, const QHash<QString, QString> &_args, const QString &_callback, QQuickItem *ctx) {
+void ApiRequest::call(const QString &_method, const QHash<QString, QString> &_args, const QString &_callback) {
     QString url = "";
     url.append(BASE_URL).append(_method).append("?v="+version_)
        .append("&access_token=").append(Storage::instance()->getAccessToken());
@@ -45,7 +44,7 @@ void ApiRequest::call(const QString &_method, const QHash<QString, QString> &_ar
     requestMutex_.unlock();
 }
 
-void ApiRequest::call(const QString &_method, const QJsonObject &_args, const QString &_callback, QQuickItem *ctx)
+void ApiRequest::call(const QString &_method, const QJsonObject &_args, const QString &_callback)
 {
     QHash<QString, QString> args;
 
@@ -53,7 +52,7 @@ void ApiRequest::call(const QString &_method, const QJsonObject &_args, const QS
         args[key] = _args[key].toString();
     }
 
-    this->call(_method, args, _callback, ctx);
+    this->call(_method, args, _callback);
 }
 
 void ApiRequest::onRequestFinished(const QString &_method, int _seq, const QString &_callback, QNetworkReply *_rep) {

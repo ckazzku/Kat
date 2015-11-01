@@ -70,6 +70,10 @@ Page {
         notificationHelper.sendNotification("", text, true)
     }
 
+    function onGetLastNews(jsonObject) {
+        NewsAPI.callback_getLastNews(jsonObject);
+    }
+
     BusyIndicator {
         id: loadingIndicator
         anchors.centerIn: parent

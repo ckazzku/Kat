@@ -94,23 +94,23 @@ QString Storage::getSettings(const QString &_key, const QString &_default) const
 }
 
 void Storage::putMyName(const QString &_firstName, const QString &_lastName) {
-    execQuery("UPDATE OR IGNORE users set first_name=?, last_name=? where id=?", {_firstName, _lastName, Session::getUserId()});
-    execQuery("INSERT OR IGNORE INTO users (id, first_name, last_name) VALUES (?, ?, ?)", {Session::getUserId(), _firstName, _lastName});
+    execQuery("UPDATE OR IGNORE users set first_name=?, last_name=? where id=?", {_firstName, _lastName, Session::instance()->getUserId()});
+    execQuery("INSERT OR IGNORE INTO users (id, first_name, last_name) VALUES (?, ?, ?)", {Session::instance()->getUserId(), _firstName, _lastName});
 }
 
 void Storage::putMyAvatar(const QString &_filename) {
-    execQuery("UPDATE OR IGNORE users set user_avatar=? where id=?", {_filename, Session::getUserId()});
-    execQuery("INSERT OR IGNORE INTO users (id, user_avatar) VALUES (?, ?)", {Session::getUserId(), _filename});
+    execQuery("UPDATE OR IGNORE users set user_avatar=? where id=?", {_filename, Session::instance()->getUserId()});
+    execQuery("INSERT OR IGNORE INTO users (id, user_avatar) VALUES (?, ?)", {Session::instance()->getUserId(), _filename});
 }
 
 QString Storage::getMyName() const {
     // TODO: ability to change first/last name order
-    auto query = execQuery("SELECT last_name||' '||first_name from users where id=?", {Session::getUserId()});
+    auto query = execQuery("SELECT last_name||' '||first_name from users where id=?", {Session::instance()->getUserId()});
     return fetchFirst(query, "");
 }
 
 QString Storage::getMyAvatar() const {
-    auto query = execQuery("SELECT user_avatar from users where id=?", {Session::getUserId()});
+    auto query = execQuery("SELECT user_avatar from users where id=?", {Session::instance()->getUserId()});
     return fetchFirst(query, "");
 }
 
