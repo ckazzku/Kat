@@ -26,7 +26,8 @@ HEADERS += \
     src/storage.h \
     src/api/photos.h \
     src/session.h \
-    src/models/newsfeedmodel.h
+    src/models/newsfeedmodel.h \
+    src/qthenable.h
 
 SOURCES += \
     src/harbour-kat.cpp \
@@ -36,7 +37,8 @@ SOURCES += \
     src/storage.cpp \
     src/api/photos.cpp \
     src/session.cpp \
-    src/models/newsfeedmodel.cpp
+    src/models/newsfeedmodel.cpp \
+    src/qthenable.cpp
 
 OTHER_FILES += \
     qml/harbour-kat.qml \

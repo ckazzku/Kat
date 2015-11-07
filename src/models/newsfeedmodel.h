@@ -25,7 +25,7 @@ class NewsFeedModel : public QAbstractListModel
 public:
     explicit NewsFeedModel(QObject *parent = 0);
 
-    void    getLastNews();
+    Q_INVOKABLE void    getLastNews();
 
     virtual QHash<int, QByteArray> roleNames() const;
     virtual int rowCount(const QModelIndex &parent) const;

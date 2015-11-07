@@ -9,7 +9,10 @@ NewsFeedModel::NewsFeedModel(QObject *parent) :
 void NewsFeedModel::getLastNews()
 {
     // TODO: pass parameters to call
-    ApiRequest::instance()->call("newsgeed.get", QJsonObject());
+    ApiRequest::instance()->call("newsfeed.get", {})->then([](const QVariant& _news){
+        qDebug() << "got news: " << _news.toJsonObject();
+    });
+
 }
 
 QHash<int, QByteArray> NewsFeedModel::roleNames() const

@@ -39,7 +39,8 @@ Page {
             loadingIndicator.running = true
             newsfeedList.model.clear()
             nextFrom = ""
-            NewsAPI.api_getLastNews(nextFrom)
+            //NewsAPI.api_getLastNews(nextFrom)
+            newsModel.getLastNews()
         }
     }
 

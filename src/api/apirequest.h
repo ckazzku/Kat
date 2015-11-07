@@ -9,7 +9,7 @@
 #include <QObject>
 #include <QMutex>
 #include <QQuickItem>
-
+#include "../qthenable.h"
 #include "../storage.h"
 
 class ApiRequest : public QObject
@@ -28,8 +28,8 @@ class ApiRequest : public QObject
 public:
     static QSharedPointer<ApiRequest> instance(QObject *parent = 0);
 
-    Q_INVOKABLE void call(const QString &_method, const QHash<QString, QString> &_args, const QString &_callback=nullptr);
-    Q_INVOKABLE void call(const QString &_method, const QJsonObject &_args, const QString &_callback=nullptr);
+    QSharedPointer<QThenable> call(const QString &_method, const QHash<QString, QString> &_args);
+    //std::future<QJsonObject> call(const QString &_method, const QJsonObject &_args);
 
     inline void setQuickObject(QQuickItem* _qml){qml_=_qml;}
     inline void setVersion(const QString &_version){version_=_version;}
@@ -38,7 +38,7 @@ signals:
     void gotResponse(const QString &_method, int _seq, const QJsonObject &_jsonData);
 
 private slots:
-    void onRequestFinished(const QString &_method, int _seq, const QString &_callback, QNetworkReply *_rep);
+    void onRequestFinished(const QString &_method, int _seq, QSharedPointer<QThenable> _thenable, QNetworkReply *_rep);
 };
 
 #endif // APIREQUEST_H

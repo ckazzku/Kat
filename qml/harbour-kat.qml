@@ -33,7 +33,7 @@ ApplicationWindow
     }
 
     Component.onCompleted: {
-        Api.gotResponse.connect(onApiResponse)
+        //Api.gotResponse.connect(onApiResponse)
 
         var pageSrc = "pages/NewsfeedPage.qml";
         if (parseInt(Storage.getSettings("start_page"), 10) === 1) {
