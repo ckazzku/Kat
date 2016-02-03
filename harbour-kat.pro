@@ -14,7 +14,7 @@ TARGET = harbour-kat
 
 QT += dbus sql
 
-CONFIG += link_pkgconfig sailfishapp
+CONFIG += link_pkgconfig sailfishapp c++11
 PKGCONFIG += mlite5
 
 HEADERS += \
@@ -58,3 +58,103 @@ OTHER_FILES += \
 CONFIG += sailfishapp_i18n
 TRANSLATIONS += \
     translations/harbour-kat-en.ts
+
+include(3rdparty/vreen/vreen.pri)
+
+VKIT_SRC_ROOT_DIR = 3rdparty/vreen/src
+
+headers_folder.source = $$VKIT_QML_SRC_DIR
+headers_folder.target = include/vreen
+
+INCLUDEPATH += $$VKIT_SRC_ROOT_DIR/directauth \
+    $$VREEN_BUILD_TREE/../vreen/include \
+    $$VKIT_SRC_ROOT_DIR/api \
+    $$VKIT_SRC_ROOT_DIR/qml/src
+DEPENDPATH += $$VREEN_BUILD_TREE/../vreen/include
+
+SOURCES += \
+    $$VKIT_SRC_ROOT_DIR/api/abstractlistmodel.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/attachment.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/audio.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/audioitem.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/chatsession.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/client.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/commentssession.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/connection.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/contact.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/contentdownloader.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/dynamicpropertydata.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/friendrequest.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/groupchatsession.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/groupmanager.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/json.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/localstorage.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/longpoll.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/message.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/messagemodel.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/messagesession.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/newsfeed.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/newsitem.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/pollitem.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/pollprovider.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/reply.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/roster.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/utils.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/wallpost.cpp \
+    $$VKIT_SRC_ROOT_DIR/api/wallsession.cpp \
+    $$VKIT_SRC_ROOT_DIR/qml/src/audiomodel.cpp \
+    $$VKIT_SRC_ROOT_DIR/qml/src/buddymodel.cpp \
+    $$VKIT_SRC_ROOT_DIR/qml/src/chatmodel.cpp \
+    $$VKIT_SRC_ROOT_DIR/qml/src/commentsmodel.cpp \
+    $$VKIT_SRC_ROOT_DIR/qml/src/dialogsmodel.cpp \
+    $$VKIT_SRC_ROOT_DIR/qml/src/newsfeedmodel.cpp \
+    $$VKIT_SRC_ROOT_DIR/qml/src/wallmodel.cpp
+
+HEADERS += \
+    $$VKIT_SRC_ROOT_DIR/api/abstractlistmodel.h \
+    $$VKIT_SRC_ROOT_DIR/api/attachment.h \
+    $$VKIT_SRC_ROOT_DIR/api/audio.h \
+    $$VKIT_SRC_ROOT_DIR/api/audioitem.h \
+    $$VKIT_SRC_ROOT_DIR/api/chatsession.h \
+    $$VKIT_SRC_ROOT_DIR/api/client.h \
+    $$VKIT_SRC_ROOT_DIR/api/client_p.h \
+    $$VKIT_SRC_ROOT_DIR/api/commentssession.h \
+    $$VKIT_SRC_ROOT_DIR/api/connection.h \
+    $$VKIT_SRC_ROOT_DIR/api/connection_p.h \
+    $$VKIT_SRC_ROOT_DIR/api/contact.h \
+    $$VKIT_SRC_ROOT_DIR/api/contact_p.h \
+    $$VKIT_SRC_ROOT_DIR/api/contentdownloader.h \
+    $$VKIT_SRC_ROOT_DIR/api/contentdownloader_p.h \
+    $$VKIT_SRC_ROOT_DIR/api/dynamicpropertydata_p.h \
+    $$VKIT_SRC_ROOT_DIR/api/friendrequest.h \
+    $$VKIT_SRC_ROOT_DIR/api/groupchatsession.h \
+    $$VKIT_SRC_ROOT_DIR/api/groupmanager.h \
+    $$VKIT_SRC_ROOT_DIR/api/groupmanager_p.h \
+    $$VKIT_SRC_ROOT_DIR/api/json.h \
+    $$VKIT_SRC_ROOT_DIR/api/localstorage.h \
+    $$VKIT_SRC_ROOT_DIR/api/longpoll.h \
+    $$VKIT_SRC_ROOT_DIR/api/longpoll_p.h \
+    $$VKIT_SRC_ROOT_DIR/api/message.h \
+    $$VKIT_SRC_ROOT_DIR/api/messagemodel.h \
+    $$VKIT_SRC_ROOT_DIR/api/messagesession.h \
+    $$VKIT_SRC_ROOT_DIR/api/messagesession_p.h \
+    $$VKIT_SRC_ROOT_DIR/api/newsfeed.h \
+    $$VKIT_SRC_ROOT_DIR/api/newsitem.h \
+    $$VKIT_SRC_ROOT_DIR/api/pollitem.h \
+    $$VKIT_SRC_ROOT_DIR/api/pollprovider.h \
+    $$VKIT_SRC_ROOT_DIR/api/reply.h \
+    $$VKIT_SRC_ROOT_DIR/api/reply_p.h \
+    $$VKIT_SRC_ROOT_DIR/api/roster.h \
+    $$VKIT_SRC_ROOT_DIR/api/roster_p.h \
+    $$VKIT_SRC_ROOT_DIR/api/utils.h \
+    $$VKIT_SRC_ROOT_DIR/api/utils_p.h \
+    $$VKIT_SRC_ROOT_DIR/api/vk_global.h \
+    $$VKIT_SRC_ROOT_DIR/api/wallpost.h \
+    $$VKIT_SRC_ROOT_DIR/api/wallsession.h \
+    $$VKIT_SRC_ROOT_DIR/qml/src/audiomodel.h \
+    $$VKIT_SRC_ROOT_DIR/qml/src/buddymodel.h \
+    $$VKIT_SRC_ROOT_DIR/qml/src/chatmodel.h \
+    $$VKIT_SRC_ROOT_DIR/qml/src/commentsmodel.h \
+    $$VKIT_SRC_ROOT_DIR/qml/src/dialogsmodel.h \
+    $$VKIT_SRC_ROOT_DIR/qml/src/newsfeedmodel.h \
+    $$VKIT_SRC_ROOT_DIR/qml/src/wallmodel.h
