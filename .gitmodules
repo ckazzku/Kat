@@ -1,0 +1,3 @@
+[submodule "3rdparty/vreen"]
+	path = 3rdparty/vreen
+	url = git@github.com:ckazzku/vreen.git
