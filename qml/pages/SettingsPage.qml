@@ -21,7 +21,6 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "../js/storage.js" as StorageJS
 import "../js/types.js" as TypesJS
 
 Page {
@@ -40,31 +39,31 @@ Page {
 
             ComboBox {
                 label: qsTr("Стартовая страница")
-                currentIndex: StorageJS.readSettingsValue("start_page")
+                currentIndex: storage.getSettings("start_page")
 
                 menu: ContextMenu {
                     MenuItem { text: qsTr("Новости") }
                     MenuItem { text: qsTr("Сообщения") }
 
-                    onActivated: StorageJS.storeSettingsValue("start_page", index)
+                    onActivated: storage.putSettings("start_page", index)
                 }
             }
 
             ComboBox {
                 label: qsTr("Создать с обложки")
-                currentIndex: StorageJS.readSettingsValue("create_from_cover")
+                currentIndex: storage.getSettings("create_from_cover")
 
                 menu: ContextMenu {
                     MenuItem { text: qsTr("Сообщение") }
                     MenuItem { text: qsTr("Запись на стене") }
 
-                    onActivated: StorageJS.storeSettingsValue("create_from_cover", index)
+                    onActivated: storage.putSettings("create_from_cover", index)
                 }
             }
 
             ComboBox {
                 label: qsTr("Предпочитаемое качество видео")
-                currentIndex: StorageJS.readSettingsValue("video_quality")
+                currentIndex: storage.getSettings("video_quality")
 
                 menu: ContextMenu {
                     MenuItem { text: "720p" }
@@ -72,13 +71,13 @@ Page {
                     MenuItem { text: "360p" }
                     MenuItem { text: "240p" }
 
-                    onActivated: StorageJS.storeSettingsValue("video_quality", index)
+                    onActivated: storage.putSettings("video_quality", index)
                 }
             }
 
             ComboBox {
                 label: qsTr("Обновление сообщений")
-                currentIndex: StorageJS.readSettingsValue("update_interval", 3)
+                currentIndex: storage.getSettings("update_interval", 3)
 
                 menu: ContextMenu {
                     MenuItem { text: TypesJS.UpdateInterval.items[0].name }
@@ -86,29 +85,29 @@ Page {
                     MenuItem { text: TypesJS.UpdateInterval.items[2].name }
                     MenuItem { text: TypesJS.UpdateInterval.items[3].name }
 
-                    onActivated: StorageJS.storeSettingsValue("update_interval", index)
+                    onActivated: storage.putSettings("update_interval", index)
                 }
             }
 
             TextSwitch {
                 text: qsTr("Обновлять сообщения вручную")
-                checked: StorageJS.readSettingsValue("update_manual", false) === 'true'
+                checked: storage.getSettings("update_manual", false) === 'true'
 
-                onCheckedChanged: StorageJS.storeSettingsValue("update_manual", checked)
+                onCheckedChanged: storage.putSettings("update_manual", checked)
             }
 
             TextSwitch {
                 text: qsTr("По возможности быть offline")
-                checked: StorageJS.readSettingsValue("is_offline_mode") === 'true'
+                checked: storage.getSettings("is_offline_mode") === 'true'
 
-                onCheckedChanged: StorageJS.storeSettingsValue("is_offline_mode", checked)
+                onCheckedChanged: storage.putSettings("is_offline_mode", checked)
             }
 
             TextSwitch {
                 text: qsTr("Отображать разделитель в сообщениях")
-                checked: StorageJS.readSettingsValue("is_separated_messages") === 'true'
+                checked: storage.getSettings("is_separated_messages") === 'true'
 
-                onCheckedChanged: StorageJS.storeSettingsValue("is_separated_messages", checked)
+                onCheckedChanged: storage.putSettings("is_separated_messages", checked)
             }
 
             Button {

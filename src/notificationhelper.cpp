@@ -29,5 +29,6 @@ void NotificationHelper::activateLed(bool activate) {
 }
 
 void NotificationHelper::timerEvent(QTimerEvent *event) {
+    Q_UNUSED(event)
     notification.remove();
 }

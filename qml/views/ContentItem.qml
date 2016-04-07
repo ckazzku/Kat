@@ -106,7 +106,7 @@ Column {
         wrapMode: Text.Wrap
         truncationMode: TruncationMode.Fade
         maximumLineCount: isNews ? (isOpenedNews ? 2000000000 : 5) : 2000000000
-
+        elide: Text.ElideRight
         onLinkActivated: Qt.openUrlExternally(link)
     }
 
@@ -319,7 +319,7 @@ Column {
             anchors.left: parent.left
             anchors.right: likesImage.left
             horizontalAlignment: isOut ? Text.AlignRight : Text.AlignLeft
-            text: datetime
+            text: dateTime
             font.pixelSize: Theme.fontSizeTiny
             color: isRead ? Theme.secondaryColor : Theme.secondaryHighlightColor
         }
@@ -378,17 +378,18 @@ Column {
         videosAttachment.model.clear()
         audiosAttachment.model.clear()
         docsAttachment.model.clear()
-        for (var index = 0; index < attachments.count; index++) {
-            if (typeof attachments.get(index).type !== 'undefined') {
-                switch (attachments.get(index).type) {
-                    case "photo": // photo from photo album
-                        photosAttachment.model.append({ photo_75:   attachments.get(index).photo.photo_75,
-                                                        photo_130:  attachments.get(index).photo.photo_130,
-                                                        photo_604:  attachments.get(index).photo.photo_604,
-                                                        photo_807:  attachments.get(index).photo.photo_807,
-                                                        photo_1280: attachments.get(index).photo.photo_1280,
-                                                        photo_2560: attachments.get(index).photo.photo_2560,
-                                                        photo_text: attachments.get(index).photo.text })
+        if (attachments)
+            for (var index = 0; index < attachments.count; index++) {
+                if (typeof attachments.get(index).type !== 'undefined') {
+                    switch (attachments.get(index).type) {
+                        case "photo": // photo from photo album
+                            photosAttachment.model.append({ photo_75:   attachments.get(index).photo.photo_75,
+                                                            photo_130:  attachments.get(index).photo.photo_130,
+                                                            photo_604:  attachments.get(index).photo.photo_604,
+                                                            photo_807:  attachments.get(index).photo.photo_807,
+                                                            photo_1280: attachments.get(index).photo.photo_1280,
+                                                            photo_2560: attachments.get(index).photo.photo_2560,
+                                                            photo_text: attachments.get(index).photo.text })
                         break
 
                     case "posted_photo": // photo from user device

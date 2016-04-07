@@ -22,20 +22,24 @@
 import QtQuick 2.0
 import QtMultimedia 5.0
 import Sailfish.Silica 1.0
+import Vreen.Base 2.0
 
 import "../views"
 import "../emojione/emojione.js" as EmojiOne
 import "../js/api/audios.js" as AudiosAPI
 import "../js/api/videos.js" as VideosAPI
-import "../js/storage.js" as StorageJS
 
 
 BackgroundItem {
-    /*
-     out
-     readState
-     useSeparator
-    */
+    id: messageItem
+
+    property QtObject from: model.from
+    property string message: model.body
+    property variant attachments: model.attachments
+    property date dateTime: model.date
+    property bool isOut: !model.incoming
+    property bool isRead: !model.unread
+    property bool isNews
 
     function calculateMessageItemHeight() {
 //        var textHeight = datetimeText.height + messageText.height + photosAttachment.height +
@@ -78,7 +82,7 @@ BackgroundItem {
     function openVideoPlayer(urls, duration) {
         console.log(urls)
         console.log(duration)
-        var url = getVideoUrl(urls, parseInt(StorageJS.readSettingsValue("video_quality"), 10))
+        var url = getVideoUrl(urls, parseInt(storage.getSettings("video_quality"), 10))
 //        console.log(url)
 
         if (url) {
@@ -100,7 +104,7 @@ BackgroundItem {
     anchors.left: parent.left
     anchors.right: parent.right
     height: calculateMessageItemHeight()
-    highlighted: out === 0 && readState === 0
+    highlighted: !isOut && !isRead
 
     Separator {
         anchors.top: parent.top
@@ -109,7 +113,7 @@ BackgroundItem {
         anchors.leftMargin: Theme.paddingMedium
         anchors.rightMargin: Theme.paddingMedium
         color: Theme.secondaryHighlightColor
-        visible: useSeparator
+        visible: storage.getSettings("is_separated_messages") === 'true'
     }
 
     Row {
@@ -120,24 +124,29 @@ BackgroundItem {
         anchors.leftMargin: Theme.paddingLarge
         anchors.rightMargin: Theme.paddingLarge
         spacing: Theme.paddingMedium
-        layoutDirection: out === 0 ? Qt.LeftToRight : Qt.RightToLeft
+        layoutDirection: isOut ? Qt.RightToLeft : Qt.LeftToRight
 
         Image {
             id: messageAvatar
             width: height
             height: Theme.itemSizeSmall - 2 * Theme.paddingSmall
-            source: out === 0 ? avatarSource : userAvatar
+            source: from ? from.photoSource : ""
         }
 
         ContentItem {
             id: mainContent
             width: parent.width - messageAvatar.width - Theme.paddingMedium
-            attachments: attachmentsData
-            isOut: out === 1
-            isRead: readState === 1
+            attachments: messageItem.attachments
+            isOut: messageItem.isOut
+            isRead: messageItem.isRead
+            isNews: messageItem.isNews
+            dateTime: messageItem.dateTime
             content: message
-            dateTime: datetime
-            isNews: isNewsContent
         }
+    }
+
+    Component.onCompleted: {
+        if (from)
+            from.update()
     }
 }

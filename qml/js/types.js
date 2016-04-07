@@ -20,7 +20,6 @@
 */
 
 .pragma library
-.import "storage.js" as StorageJS
 
 var Action = {
     ADD: 0,
@@ -65,7 +64,7 @@ var UpdateInterval = {
     index: 0,
 
     getValue: function() {
-        this.index = parseInt(StorageJS.readSettingsValue("update_interval", 3), 10)
+        this.index = parseInt(storage.getSettings("update_interval", 3), 10)
 
         if (this.items.length > this.index) return this.items[this.index].value
 
@@ -107,6 +106,6 @@ var LongPollWorker = {
 
 var MessageUpdateMode = {
     isManual: function() {
-        return StorageJS.readSettingsValue("update_manual", 'false') === 'true'
+        return storage.getSettings("update_manual", 'false') === 'true'
     }
 }

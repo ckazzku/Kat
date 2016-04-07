@@ -21,202 +21,86 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Vreen.Base 2.0
+
 import "../views"
-import "../js/signals.js" as SignalsJS
-import "../js/storage.js" as StorageJS
-import "../js/types.js" as TypesJS
-import "../js/api/messages.js" as MessagesAPI
-import "../js/api/users.js" as UsersAPI
 
 Page {
     id: dialogPage
 
-    property string fullname
-    property int dialogId
-    property bool isChat
-    property bool isOnline
+    property int chatId
+    property string title
+
+    property int count: 5
+    property variant participants: chatModel.participants
+    property QtObject interlocutor: participants && participants.length === 1 ? participants[0] : null
+    property bool isOnline: interlocutor && interlocutor.online
+    property bool isChat: chatId > 0
     property string lastSeenTime
-    property string avatarSource
-    property string userAvatar
-    property bool useSeparators: StorageJS.readSettingsValue("is_separated_messages") === 'true'
 
     property Item contextMenu
-
-    property variant chatUsers: QtObject {}
-
     property string attachmentsList: ""
 
-    function formNewDialogMessages() {
-        console.log('formNewDialogMessages()')
-        loadingMessagesIndicator.running = true
-        var messagesArray = StorageJS.getLastMessagesForDialog(dialogId)
-        for (var item in messagesArray) formMessageList(messagesArray[item])
-        getLastHistoryFromServer(true)
-        scrollMessagesToBottom(true)
-
-        if (isChat) MessagesAPI.api_getChatUsers(dialogId)
-        else UsersAPI.api_getUsersAvatarAndOnlineStatus(dialogId)
-    }
-
-    function saveUsers(users) {
-        var usersDict = {}
-        for (var index in users) usersDict[users[index].id] = users[index]
-        chatUsers = usersDict
-        pageContainer.pushAttached(Qt.resolvedUrl("../pages/ChatUsersPage.qml"),
-                                   { "chatTitle": fullname, "users": users })
-        MessagesAPI.api_getHistory(isChat, dialogId, 0)
-    }
-
-    function updateDialogInfo(userId, data) {
-        if (dialogId === userId) {
-            if (isChat) {
-                if ("fullname" in data) fullname = data.fullname
-            } else {
-                if ("isOnline" in data) isOnline = data.isOnline
-            }
-
-            if ("avatarSource" in data) avatarSource = data.avatarSource
-            if ("lastSeen" in data) lastSeenTime = data.lastSeen
-        }
-    }
-
-    function sendMessage() {
-        var text = encodeURIComponent(messageInput.text)
-        MessagesAPI.api_sendMessage(isChat, dialogId, text, attachmentsList, false)
-        messageInput.text = ""
-        attachmentsList = ""
-        markDialogAsRead()
-    }
-
-    function getUserAvatar(userId) {
-        console.log("getUserAvatar(" + userId + ")");
-
-        var avatar = "image://theme/icon-cover-people"
-
+    onChatIdChanged: {
+        chatModel.setChatId(chatId)
         if (isChat) {
-            if (userId in chatUsers) avatar = chatUsers[userId].photo
-        } else avatar = avatarSource
-
-        console.log("avatar = " + avatar);
-        return avatar
-    }
-
-    function formMessagesListFromServerData(messagesArray) {
-        var toBottom = messages.model.count > 0 ?
-                    messages.getMessageId(true) < messagesArray[0].mid :
-                    false
-
-        if (toBottom && messagesArray.length > 1 &&
-                messagesArray[0].mid > messagesArray[messagesArray.length - 1].mid)
-            messagesArray.reverse()
-
-        for (var item in messagesArray) {
-            var messageData = messagesArray[item]
-            formMessageList(messageData, toBottom)
+            chatModel.participantsChanged.connect(function(data) {
+                if (pageContainer)
+                    pageContainer.pushAttached(Qt.resolvedUrl("../pages/ChatUsersPage.qml"),
+                                               { "title": dialogPage.title,
+                                                 "users": dialogPage.participants })
+            })
         }
-        scrollMessagesToBottom(toBottom)
+
+        getHistory()
+        scrollMessagesToBottom()
     }
 
-    function formMessageList(messageData, insertToEnd) {
-        var index = messages.lookupItem(messageData.mid)
+    function getHistory(prev) {
+        prev = prev === true
+        var offset = chatModel.count
 
-        if (messageData.out === 0) {
-            if (!messageData.avatarSource)
-                messageData.avatarSource = getUserAvatar(messageData.fromId)
-        } else messageData.userAvatar = userAvatar
-        messageData.useSeparator = useSeparators
-        if (index === -1) {
-            index = (insertToEnd === true) ? messages.model.count : 0
-            messages.model.insert(index, messageData)
-        } else {
-            messages.model.set(index, messageData)
+        loadingIndicator.running = true
+        var reply = chatModel.getHistory(count, prev ? -offset : offset)
+        if (reply) {
+            reply.resultReady.connect(function(data) {
+                loadingIndicator.running = false
+            });
         }
-    }
-
-    /**
-     * The method appends new message to the messages list in the current dialog.
-     * @param jsonMessage - info about new message in JSON format
-     */
-    function addNewMessage(jsonMessage) {
-        console.log("addNewMessage(" + JSON.stringify(jsonMessage) + ")");
-
-        var fromId = jsonMessage.fromId ? jsonMessage.fromId : jsonMessage.user_id;
-        if (isChat) fromId = jsonMessage.chat_id;
-
-        if (dialogId === fromId) {
-            var messageData = MessagesAPI.parseMessage(jsonMessage);
-            formMessageList(messageData, true);
-            scrollMessagesToBottom(true);
-        }
-    }
-
-    function updateMessageInfo(userId, data) {
-        if (dialogId === userId) {
-            var msgIndex = messages.lookupItem(data.msgId)
-            if (msgIndex !== -1) {
-                if ("peerOut" in data) {
-                    for (; 0 <= msgIndex; --msgIndex) {
-                        var msg = messages.model.get(msgIndex)
-                        if (msg.out === data.peerOut &&
-                                            msg.readState !== data.peerReadState) {
-                            messages.model.setProperty(msgIndex,
-                                                    "readState", data.peerReadState)
-                            StorageJS.updateMessage(msg.mid, {"is_read": data.peerReadState})
-                        }
-                    }
-                } else {
-                    messages.model.setProperty(msgIndex,
-                                                    "readState", data.readState)
-                    StorageJS.updateMessage(data.msgId, {"is_read": data.readState})
-                }
-            }
-        }
-    }
-
-    function scrollMessagesToBottom(toBottom) {
-        if (toBottom) messages.positionViewAtEnd()
-        else messages.positionViewAtIndex(MessagesAPI.HISTORY_COUNT - 2, ListView.Beginning)
-    }
-
-    function stopBusyIndicator() {
-        loadingMessagesIndicator.running = false
     }
 
     function markDialogAsRead() {
-        var unreadMessages = []
-        for (var i = 0; i < messages.model.count; ++i) {
-            var msg = messages.model.get(i)
-            if (msg.readState === 0 && msg.out === 0) {
-                unreadMessages.push(msg.mid)
-                messages.model.setProperty(i, "readState", 1)
-                StorageJS.updateMessage(msg.mid, {"is_read": 1})
-            }
-        }
-        if (unreadMessages.length > 0)
-            MessagesAPI.api_markDialogAsRead(unreadMessages.toString())
+        chatModel.markAsRead()
     }
 
-    function getLastHistoryFromServer(fromLastMessage) {
-        loadingMessagesIndicator.running = true
-        var offset = 0
-        var lastMsgId = null
-        if (fromLastMessage === true) {
-            lastMsgId = messages.getMessageId(true)
-            if (lastMsgId > 0) offset = -MessagesAPI.HISTORY_COUNT
-        }
-        MessagesAPI.api_getHistory(isChat, dialogId, offset, lastMsgId)
+    function scrollMessagesToBottom() {
+        messages.positionViewAtEnd()
+    }
+
+    function scrollMessagesToTop() {
+        messages.positionViewAtIndex(count - 2, ListView.Beginning)
+    }
+
+    function sendMessage() {
+        chatModel.sendMessage(messageInput.text)
+
+        messageInput.text = ""
+        attachmentsList = ""
+
+        markDialogAsRead()
+        scrollMessagesToBottom()
     }
 
     BusyIndicator {
-        id: loadingMessagesIndicator
+        id: loadingIndicator
         anchors.centerIn: parent
         size: BusyIndicatorSize.Large
-        running: true
+        running: false
     }
 
     SilicaFlickable {
         anchors.fill: parent
-        contentHeight: dialogPage.height
+        contentHeight: parent.height
 
         Label {
             id: dialogTitle
@@ -227,7 +111,7 @@ Page {
             height: Theme.fontSizeLarge + 3 * Theme.paddingLarge
             width: parent.width - Theme.paddingLarge
             verticalAlignment: Text.AlignVCenter
-            text: fullname
+            text: title
             elide: Text.ElideRight
         }
 
@@ -248,19 +132,7 @@ Page {
             anchors.topMargin: dialogTitle.height
             anchors.bottomMargin: messageInput.height
             clip: true
-
-            model: ListModel {}
-
-            header: Button {
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width / 3 * 2
-                text: qsTr("Загрузить больше")
-                onClicked: {
-                    loadingMessagesIndicator.running = true
-                    var topMsgId = messages.getMessageId(false)
-                    MessagesAPI.api_getHistory(isChat, dialogId, 0, topMsgId)
-                }
-            }
+            model: chatModel
 
             footer: Label {
                 width: parent.width
@@ -309,7 +181,7 @@ Page {
 
                         MenuItem {
                             text: qsTr("Копировать текст")
-                            onClicked: Clipboard.text = messages.model.get(index).message
+                            onClicked: Clipboard.text = chatModel.getMessageBody(index)
                         }
 
                         onClosed: contextMenu = null
@@ -318,28 +190,6 @@ Page {
             }
 
             VerticalScrollDecorator {}
-
-            function lookupItem(itemId, fromEnd) {
-                fromEnd = fromEnd === true
-
-                for (var i = (fromEnd ? messages.model.count - 1 : 0);
-                             (fromEnd ? i >= 0 : i < messages.model.count);
-                             (fromEnd ? --i : ++i)) {
-                    if (messages.model.get(i).mid === itemId) {
-                        return i
-                    }
-                }
-//                console.log("Message with id '" + itemId + "' does not exist")
-                return -1
-            }
-
-            function getMessageId(isLast) {
-                var msgId = -1
-                if (messages.model.count > 0)
-                    msgId = messages.model.get(isLast ? messages.model.count - 1 : 0).mid
-
-                return msgId
-            }
         }
 
         IconButton {
@@ -383,13 +233,24 @@ Page {
             EnterKey.onClicked: sendMessage()
         }
 
+        PullDownMenu {
+            MenuItem {
+                text: qsTr("Загрузить больше")
+                onClicked: {
+                    getHistory(true)
+                    scrollMessagesToTop()
+                }
+            }
+        }
+
         PushUpMenu {
 
             MenuItem {
                 text: qsTr("Обновить")
                 onClicked: {
                     markDialogAsRead()
-                    getLastHistoryFromServer()
+                    getHistory()
+                    scrollMessagesToBottom()
                 }
             }
 
@@ -398,75 +259,11 @@ Page {
                 onClicked: {
                     var imagePicker = pageStack.push("Sailfish.Pickers.ImagePickerPage")
                     imagePicker.selectedContentChanged.connect(function () {
-                        loadingMessagesIndicator.running = true
+//                        loadingIndicator.running = true
                         photos.attachImage(imagePicker.selectedContent, "MESSAGE", 0)
                     })
                 }
             }
         }
-    }
-
-    Timer {
-        interval: 0
-        running: Qt.application.active
-        repeat: false
-        triggeredOnStart: true
-
-        onTriggered: {
-            if (messages.count > 0) {
-                getLastHistoryFromServer(true)
-                scrollMessagesToBottom(true)
-            }
-        }
-    }
-
-    Connections {
-        target: photos
-        onImageUploaded: {
-            attachmentsList += imageName + ","
-            loadingMessagesIndicator.running = false
-        }
-    }
-
-    onStatusChanged:
-        if (status === PageStatus.Inactive) markDialogAsRead()
-        else if (status === PageStatus.Active) formNewDialogMessages()
-
-    onChatUsersChanged: {
-        console.log("onChatUsersChanged: ...")
-        for (var i = 0; i < messages.count; ++i) {
-            var msg = messages.model.get(i)
-            var avatar = getUserAvatar(msg.fromId)
-            if (avatar !== msg.avatarSource) messages.model.setProperty(i, "avatarSource", avatar)
-        }
-    }
-
-    onAvatarSourceChanged: {
-        if (!isChat) {
-            for (var i = 0; i < messages.count; ++i) {
-                var msg = messages.model.get(i)
-                if (avatarSource !== msg.avatarSource && msg.out === 0)
-                    messages.model.setProperty(i, "avatarSource", avatarSource)
-            }
-        }
-
-    }
-
-    Component.onCompleted: {
-        SignalsJS.signaller.endLoading.connect(stopBusyIndicator)
-        SignalsJS.signaller.gotDialogInfo.connect(updateDialogInfo)
-        SignalsJS.signaller.gotChatUsers.connect(saveUsers)
-        SignalsJS.signaller.gotHistory.connect(formMessagesListFromServerData)
-        SignalsJS.signaller.gotMessageInfo.connect(updateMessageInfo)
-        SignalsJS.signaller.gotNewMessage.connect(addNewMessage)
-    }
-
-    Component.onDestruction: {
-        SignalsJS.signaller.endLoading.disconnect(stopBusyIndicator)
-        SignalsJS.signaller.gotDialogInfo.disconnect(updateDialogInfo)
-        SignalsJS.signaller.gotChatUsers.disconnect(saveUsers)
-        SignalsJS.signaller.gotHistory.disconnect(formMessagesListFromServerData)
-        SignalsJS.signaller.gotMessageInfo.disconnect(updateMessageInfo)
-        SignalsJS.signaller.gotNewMessage.disconnect(addNewMessage)
     }
 }

@@ -19,9 +19,6 @@
   along with Kat.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-.import "storage.js" as StorageJS
-
-
 var accessToken
 var userId
 

@@ -32,7 +32,7 @@ ApplicationWindow
     initialPage: {
         StorageJS.initDatabase()
 
-        if (parseInt(StorageJS.readSettingsValue("start_page"), 10) === 1) {
+        if (parseInt(storage.getSettings("start_page"), 10) === 1) {
             return Qt.createQmlObject("import QtQuick 2.0; import \"pages\"; Component { DialogsListPage {} }", application)
         } else {
             return Qt.createQmlObject("import QtQuick 2.0; import \"pages\"; Component { NewsfeedPage {} }", application)
@@ -41,7 +41,7 @@ ApplicationWindow
 
     Component.onCompleted: {
         pageStack.pushAttached(Qt.resolvedUrl("pages/MainMenuPage.qml"))
-        if (!StorageJS.readSettingsValue("user_id")) {
+        if (!storage.getMyUid()) {
             pageStack.push(Qt.resolvedUrl("pages/LoginPage.qml"))
         }
     }

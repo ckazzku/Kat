@@ -27,20 +27,33 @@ import "../emojione/emojione.js" as EmojiOne
 BackgroundItem {
     /*
       Common fields:
-          name         - user name
+          itemId       - id of user or dialog
+          isDialog     - true if it is a dialog, false - elsewise
           avatarSource - URL of user avatar
           isOnline     - online status of user
+          title        - user name or chat title
+          previewText  - the text for preview. It may be last message or user status
+
+      Dialogs' fields:
+          isChat       - true if the dialog is chat, false - elsewise
+          out          - true if last message is output, false - elsewise
+          readState    - true if the dialog was read
     */
-    id: userItem
+    id: dialogItem
 
-    property QtObject contact: model.contact
-
-    property string name: contact ? contact.name : ""
+    property bool isDialog: model.chatId === 0
+    property bool isOut: !model.incoming
+    property bool isRead: !model.unread
+    property QtObject contact: isOut ? model.to : model.from
+    property int itemId: isDialog && contact ? -contact.id : model.chatId
     property string avatarSource: contact ? contact.photoSource : ""
-    property bool isOnline: contact && contact.status !== Contact.Offline
+    property bool isOnline: isDialog && contact && contact.status !== Contact.Offline
+    property string title: isDialog && contact ? contact.name : model.subject
+    property string previewText: model.body
 
     width: parent.width
     height: Theme.itemSizeMedium
+    highlighted: isDialog && !isOut && !isRead
 
     Image {
         id: avatar
@@ -64,19 +77,33 @@ BackgroundItem {
 
         Switch {
             id: onlineStatus
-            height: nameLabel.height
+            height: name.height
             width: height
             automaticCheck: false
             checked: isOnline
         }
 
         Label {
-            id: nameLabel
+            id: name
             width: parent.width - onlineStatus.width - Theme.paddingMedium
-            color: Theme.primaryColor
-            text: '<b>' + EmojiOne.toImage(name) + '</b>'
+            color: isDialog && !isRead && !isOut ? Theme.highlightColor : Theme.primaryColor
+            text: '<b>' + EmojiOne.toImage(title) + '</b>'
             truncationMode: TruncationMode.Fade
         }
+    }
+
+    Label {
+        id: messagePreview
+        anchors.bottom: avatar.bottom
+        anchors.left: avatar.right
+        anchors.leftMargin: Theme.paddingMedium
+        anchors.right: parent.right
+        anchors.rightMargin: Theme.paddingLarge
+        maximumLineCount: 1
+        color: !isDialog || isRead ? Theme.secondaryColor : Theme.secondaryHighlightColor
+        linkColor: isRead ? Theme.secondaryColor : Theme.secondaryHighlightColor
+        text: EmojiOne.toImage(previewText)
+        truncationMode: TruncationMode.Fade
     }
 
     Component.onCompleted: {

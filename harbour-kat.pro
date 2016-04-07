@@ -22,7 +22,13 @@ HEADERS += \
     src/notificationhelper.h \
     src/api/apirequest.h \
     src/storage.h \
-    src/api/photos.h
+    src/api/photos.h \
+    src/coreclient.h \
+    src/simpleconnection.h \
+    src/models/buddymodel.h \
+    src/models/chatmodel.h \
+    src/models/dialogsmodel.h \
+    src/models/newsfeedmodel.h
 
 SOURCES += \
     src/harbour-kat.cpp \
@@ -30,7 +36,13 @@ SOURCES += \
     src/notificationhelper.cpp \
     src/api/apirequest.cpp \
     src/storage.cpp \
-    src/api/photos.cpp
+    src/api/photos.cpp \
+    src/coreclient.cpp \
+    src/simpleconnection.cpp \
+    src/models/buddymodel.cpp \
+    src/models/chatmodel.cpp \
+    src/models/dialogsmodel.cpp \
+    src/models/newsfeedmodel.cpp
 
 OTHER_FILES += \
     qml/harbour-kat.qml \
@@ -59,18 +71,13 @@ CONFIG += sailfishapp_i18n
 TRANSLATIONS += \
     translations/harbour-kat-en.ts
 
-include(3rdparty/vreen/vreen.pri)
+# using vreen
 
 VKIT_SRC_ROOT_DIR = 3rdparty/vreen/src
 
-headers_folder.source = $$VKIT_QML_SRC_DIR
-headers_folder.target = include/vreen
-
-INCLUDEPATH += $$VKIT_SRC_ROOT_DIR/directauth \
-    $$VREEN_BUILD_TREE/../vreen/include \
+INCLUDEPATH += \
     $$VKIT_SRC_ROOT_DIR/api \
     $$VKIT_SRC_ROOT_DIR/qml/src
-DEPENDPATH += $$VREEN_BUILD_TREE/../vreen/include
 
 SOURCES += \
     $$VKIT_SRC_ROOT_DIR/api/abstractlistmodel.cpp \
@@ -101,14 +108,7 @@ SOURCES += \
     $$VKIT_SRC_ROOT_DIR/api/roster.cpp \
     $$VKIT_SRC_ROOT_DIR/api/utils.cpp \
     $$VKIT_SRC_ROOT_DIR/api/wallpost.cpp \
-    $$VKIT_SRC_ROOT_DIR/api/wallsession.cpp \
-    $$VKIT_SRC_ROOT_DIR/qml/src/audiomodel.cpp \
-    $$VKIT_SRC_ROOT_DIR/qml/src/buddymodel.cpp \
-    $$VKIT_SRC_ROOT_DIR/qml/src/chatmodel.cpp \
-    $$VKIT_SRC_ROOT_DIR/qml/src/commentsmodel.cpp \
-    $$VKIT_SRC_ROOT_DIR/qml/src/dialogsmodel.cpp \
-    $$VKIT_SRC_ROOT_DIR/qml/src/newsfeedmodel.cpp \
-    $$VKIT_SRC_ROOT_DIR/qml/src/wallmodel.cpp
+    $$VKIT_SRC_ROOT_DIR/api/wallsession.cpp
 
 HEADERS += \
     $$VKIT_SRC_ROOT_DIR/api/abstractlistmodel.h \
@@ -150,11 +150,4 @@ HEADERS += \
     $$VKIT_SRC_ROOT_DIR/api/utils_p.h \
     $$VKIT_SRC_ROOT_DIR/api/vk_global.h \
     $$VKIT_SRC_ROOT_DIR/api/wallpost.h \
-    $$VKIT_SRC_ROOT_DIR/api/wallsession.h \
-    $$VKIT_SRC_ROOT_DIR/qml/src/audiomodel.h \
-    $$VKIT_SRC_ROOT_DIR/qml/src/buddymodel.h \
-    $$VKIT_SRC_ROOT_DIR/qml/src/chatmodel.h \
-    $$VKIT_SRC_ROOT_DIR/qml/src/commentsmodel.h \
-    $$VKIT_SRC_ROOT_DIR/qml/src/dialogsmodel.h \
-    $$VKIT_SRC_ROOT_DIR/qml/src/newsfeedmodel.h \
-    $$VKIT_SRC_ROOT_DIR/qml/src/wallmodel.h
+    $$VKIT_SRC_ROOT_DIR/api/wallsession.h

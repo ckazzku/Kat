@@ -1,43 +1,163 @@
 #include "storage.h"
 
+#include <QException>
+#include <QSqlError>
+
+const QString Storage::DbName = "harbour-kat.db";
+QSharedPointer<Storage> Storage::m_instance = QSharedPointer<Storage>();
+
 Storage::Storage(QObject *parent) :
     QObject(parent)
 {
-    mDb = QSqlDatabase::addDatabase("QSQLITE");
-    mDb.setDatabaseName(getPathToDatabase());
+    m_db = QSqlDatabase::addDatabase("QSQLITE");
+    m_db.setDatabaseName(getPathToDatabase());
+    if (!m_db.open()) {
+        qDebug() << "failed to open database";
+        throw new QException(); // TODO: use more specific exception
+    }
+
+    // TODO: handle errors
+    execQuery("CREATE TABLE IF NOT EXISTS settings (key TEXT UNIQUE, value TEXT)", {});
+    execQuery("CREATE TABLE IF NOT EXISTS messages (id           INTEGER UNIQUE, \
+                                                    chat_id      INTEGER,  \
+                                                    user_id      INTEGER, \
+                                                    from_id      INTEGER,  \
+                                                    date         INTEGER,  \
+                                                    is_read      INTEGER,  \
+                                                    is_out       INTEGER,  \
+                                                    title        TEXT,  \
+                                                    body         TEXT,  \
+                                                    geo          TEXT,  \
+                                                    attachments  TEXT,  \
+                                                    fwd_messages TEXT)", {});
+    execQuery("CREATE TABLE IF NOT EXISTS users (id         INTEGER UNIQUE,  \
+                                                    first_name TEXT, \
+                                                    last_name  TEXT, \
+                                                    avatar     TEXT)", {});
 }
 
-QString Storage::getAccessToken() {
-    QString accessToken;
-    if (!mDb.open()) return accessToken;
-
-    QSqlQuery query("SELECT value FROM settings WHERE key=\"access_token\"");
-    if (query.next()) accessToken = query.value(0).toString();
-
-    mDb.close();
-    return accessToken;
+QSharedPointer<Storage> Storage::instance(QObject *parent)
+{
+    if (m_instance.isNull()) {
+        m_instance = QSharedPointer<Storage>(new Storage(parent));
+    }
+    return m_instance;
 }
 
-QString Storage::getPathToDatabase() {
+Storage::~Storage() {
+    m_db.close();
+}
+
+QSharedPointer<QSqlQuery> Storage::execQuery(const QString &_query, const QVariantList &_data) const {
+    QString data = "[";
+    for (auto it : _data)
+        data += it.toString() + ",";
+    data += "]";
+    qDebug() << QString("Storage::execQuery(%1,%2)").arg(_query, data);
+
+    QSharedPointer<QSqlQuery> query(new QSqlQuery());
+    query->prepare(_query);
+    for (const auto &val: _data) {
+        query->addBindValue(val);
+    }
+    if (query->exec()) {
+        return query;
+    } else {
+        qDebug() << query->lastError();
+        return QSharedPointer<QSqlQuery>();
+    }
+}
+
+void Storage::putKeyval(const QString &_table, const QString &_key, const QString &_value) {
+    execQuery("INSERT OR REPLACE INTO "+_table+" VALUES (?, ?)", {_key, _value});
+}
+
+QString Storage::getKeyval(const QString &_table, const QString &_key, const QString &_default) const {
+    auto query = execQuery("SELECT value FROM "+_table+" WHERE key=?", {_key});
+    return fetchFirst(query, _default);
+}
+
+QString Storage::fetchFirst(const QSharedPointer<QSqlQuery> &_query, const QString &_default) const
+{
+    if (_query && _query->next()) {
+        return _query->value(0).toString();
+    } else {
+        return _default;
+    }
+}
+
+QString Storage::getAccessToken() const {
+    return getSettings("access_token");
+}
+
+void Storage::putSettings(const QString &_key, const QString &_value) {
+    putKeyval("settings", _key, _value);
+}
+
+QString Storage::getSettings(const QString &_key, const QString &_default) const
+{
+    return getKeyval("settings", _key, _default);
+}
+
+void Storage::putMyName(const QString &_firstName, const QString &_lastName) {
+    auto uid = getMyUid();
+    execQuery("UPDATE OR IGNORE users set first_name=?, last_name=? where id=?", {_firstName, _lastName, uid});
+    execQuery("INSERT OR IGNORE INTO users (id, first_name, last_name) VALUES (?, ?, ?)", {uid, _firstName, _lastName});
+}
+
+void Storage::putMyAvatar(const QString &_filename) {
+    auto uid = getMyUid();
+    execQuery("UPDATE OR IGNORE users set user_avatar=? where id=?", {_filename, uid});
+    execQuery("INSERT OR IGNORE INTO users (id, user_avatar) VALUES (?, ?)", {uid, _filename});
+}
+
+QString Storage::getMyName() const {
+    // TODO: ability to change first/last name order
+    auto query = execQuery("SELECT last_name||' '||first_name from users where id=?", {getMyUid()});
+    return fetchFirst(query, "");
+}
+
+QString Storage::getMyAvatar() const {
+//    auto query = execQuery("SELECT user_avatar from users where id=?", {getMyUid()});
+    return "";//fetchFirst(query, "");
+}
+
+int Storage::getMyUid() const {
+    auto id = getSettings("user_id", "0").toInt();
+    qDebug() << "Storage::getMyUid -> " << id;
+    return id;
+}
+
+void Storage::putUserInfo(int _userId, const QString &_firstName, const QString &_lastName, const QString &_avatarFilename)
+{
+    execQuery("INSERT OR REPLACE INTO users (id, first_name, last_name, user_avatar) VALUES (?, ?, ?, ?)", {_userId, _firstName, _lastName, _avatarFilename});
+}
+
+
+QString Storage::getPathToDatabase() const {
     QString pathToDatabase;
 
     QStringList cacheLocation = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
     if (cacheLocation.isEmpty()) pathToDatabase = getenv("$XDG_DATA_HOME/harbour-kat/");
     else pathToDatabase = QString("%1/").arg(cacheLocation.first());
-    pathToDatabase = pathToDatabase.append("QML/OfflineStorage/Databases/");
+    pathToDatabase.append("QML/OfflineStorage/Databases/");
 
     QDir dir(pathToDatabase);
-    QStringList files = dir.entryList(QStringList() << "*.sqlite");
-    if (!files.isEmpty()) pathToDatabase = pathToDatabase.append(files.first());
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+
+    pathToDatabase.append(DbName);
 
     qDebug() << "Path to database:" << pathToDatabase;
+
     return pathToDatabase;
 }
 
 bool Storage::clearCache() {
     qDebug() << "Storage::clearCache()";
 
-    if (!mDb.open()) false;
+    if (!m_db.open()) return false;
 
     QSqlQuery query("DELETE FROM messages");
     bool result = query.numRowsAffected() != -1;
@@ -45,6 +165,6 @@ bool Storage::clearCache() {
     result = result && query.exec("DELETE FROM users");
     result = result && query.exec("DELETE FROM user_info");
 
-    mDb.close();
+    m_db.close();
     return result;
 }

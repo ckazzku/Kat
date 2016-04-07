@@ -37,6 +37,13 @@
     </message>
 </context>
 <context>
+    <name>ChatModel</name>
+    <message>
+        <source>unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DialogPage</name>
     <message>
         <source>Загрузить больше</source>
@@ -206,6 +213,57 @@
     <name>OneNewsPage</name>
     <message>
         <source>Мне нравится</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>NewsFeed enums</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t use reply directly</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use client.roster instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use client.connection instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use client.contact(id)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only flags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use client.longPoll instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attachment enums</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NewsItem enums</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot use this class directly</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use CoreClient instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use roster.buddy(id)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

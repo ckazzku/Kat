@@ -19,8 +19,6 @@
   along with Kat.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-.import "../storage.js" as StorageJS
-
 var API_SERVER = "https://api.vk.com/method/";
 var API_VERSION = "v=5.37"
 
@@ -49,7 +47,7 @@ function sendRequestTo(query, callback) {
 
 function sendRequest(method, data, callback, isNew) {
     var query = API_SERVER + method + "?" + API_VERSION +
-            "&access_token=" + StorageJS.readSettingsValue("access_token");
+            "&access_token=" + storage.getAccessToken();
     for (var arg in data) if (data[arg] !== "") query += "&" + arg + "=" + data[arg];
 
     sendRequestTo(query, callback, isNew)

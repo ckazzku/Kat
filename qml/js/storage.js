@@ -21,7 +21,6 @@
 
 .import QtQuick.LocalStorage 2.0 as LS
 
-
 var DATABASE_VERSION = "6"
 
 function getDatabase() {

@@ -21,7 +21,6 @@
 
 .import "../signals.js" as SignalsJS
 .import "request.js" as RequestAPI
-.import "../storage.js" as StorageJS
 
 var signaller = SignalsJS.signaller;
 
@@ -54,19 +53,19 @@ function callback_getUserNameAndAvatar(jsonObject) {
     var firstName = jsonObject.response[0].first_name
     var secondName = jsonObject.response[0].last_name
     var fullName = firstName + " " + secondName
-    var oldAvatarName = StorageJS.readUserAvatar()
+    var oldAvatarName = storage.getMyAvatar()
     var newAvatarName = jsonObject.response[0].photo_100.split("/")
     newAvatarName = newAvatarName[newAvatarName.length - 1]
 
-    if (StorageJS.readFullUserName() !== fullName) {
+    if (storage.getMyName() !== fullName) {
         console.log("Replacing user name...")
-        StorageJS.saveUserName(firstName, secondName)
+        storage.putMyName(firstName, secondName)
         signaller.gotUserNameAndAvatar(fullName, cachePath + oldAvatarName)
     }
     if (oldAvatarName !== newAvatarName) {
         console.log("Replacing user avatar...")
         fileDownloader.startDownload(jsonObject.response[0].photo_100, 0)
-        StorageJS.saveUserAvatar(newAvatarName)
+        storage.putMyAvatar(newAvatarName)
     }
 }
 
@@ -92,10 +91,10 @@ function callback_getUsersAvatarAndOnlineStatus(jsonObject) {
                            ("0" + date.getFullYear()).slice(-2)
         }
 
-        StorageJS.saveAnotherUserInfo(res.id,
-                                      res.first_name,
-                                      res.last_name,
-                                      res.photo_100.split('/').slice(-1))
+        storage.putUserInfo(res.id,
+                            res.first_name,
+                            res.last_name,
+                            res.photo_100.split('/').slice(-1))
         signaller.gotDialogInfo(res.id,
                                 { "avatarSource": res.photo_100,
                                   "nameOrTitle":  fullname,

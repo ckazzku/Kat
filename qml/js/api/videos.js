@@ -19,7 +19,6 @@
   along with Kat.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-.import "../storage.js" as StorageJS
 .import "request.js" as RequestAPI
 
 

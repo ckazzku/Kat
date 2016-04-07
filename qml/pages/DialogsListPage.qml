@@ -21,123 +21,28 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Vreen.Base 2.0
 
 import "../views"
-import "../js/auth.js" as AuthJS
-import "../js/signals.js" as SignalsJS
-import "../js/storage.js" as StorageJS
-import "../js/api/messages.js" as MessagesAPI
-import "../js/api/users.js" as UsersAPI
-import "../js/types.js" as TypesJS
 
 Page {
+    id: dialogsListPage
 
-    property int dialogsOffset: 0
-    property var dialogsData: []
-    property var usersAvatars: []
+    property int count: 5
+    property int offset: 0
+    property int previewLength: 160
 
-    function lookupItem(itemId) {
-        if (itemId < 0) return -1
-        for (var i = 0; i < dialogsData.length; ++i) {
-            if (dialogsData[i].itemId === itemId) return i
-        }
-        return -1
-    }
+    function getDialogs() {
+        loadingIndicator.running = true
 
-    function updateDialogs() {
-        console.log('updateDialogs()')
-        if (StorageJS.readSettingsValue("user_id")) {
-            dialogsOffset = 0
-            dialogsData = []
-            usersAvatars = []
-            loadingIndicator.running = true
-            messagesList.footerItem.visible = false
-            MessagesAPI.api_getDialogsList(dialogsOffset)
-        }
-    }
-
-    function formDialogsList(listItemData) {
-        if (listItemData) {
-            dialogsData[dialogsData.length] = { isDialog:     true,
-                                                out:          listItemData[0],
-                                                avatarSource: "image://theme/icon-cover-message",
-                                                nameOrTitle:  listItemData[1],
-                                                previewText:  listItemData[2],
-                                                itemId:       listItemData[3],
-                                                readState:    listItemData[4],
-                                                isOnline:     false,
-                                                isChat:       listItemData[5] }
-        } else {
-            var lastDialogs = StorageJS.getLastDialogs()
-            for (var item in lastDialogs) messagesList.model.append(lastDialogs[item])
-            updateDialogs()
-        }
-    }
-
-    function updateDialogsList(jsonMessage) {
-        var itemData = MessagesAPI.parseDialogListItem(jsonMessage)
-
-        var uid = jsonMessage.from_id
-        var isChat = itemData[5]
-        var dialogIndex = lookupItem(itemData[3])
-
-        if (dialogIndex !== -1) {
-            var data = { out:         itemData[0],
-                         previewText: itemData[2],
-                         readState:   itemData[4] }
-            if (isChat) data["nameOrTitle"] = itemData[1]
-
-            updateDialogInfo(itemData[3], data)
-
-            data = dialogsData.splice(dialogIndex, 1)[0]
-            dialogsData.unshift(data)
-
-            flushDialogsData()
-        } else {
-            formDialogsList(itemData, true)
-            if (isChat) MessagesAPI.api_getChat(itemData[3])
-            else UsersAPI.api_getUsersAvatarAndOnlineStatus(uid)
-        }
-    }
-
-    function updateDialogInfo(dialogId, data) {
-        console.log("updateDialogInfo(" + dialogId + ", " + JSON.stringify(data) + ")")
-
-        var idx = lookupItem(dialogId)
-
-        if (idx !== -1) {
-            var infoKeys = Object.keys(data)
-            for (var i in infoKeys) {
-                var key = infoKeys[i]
-                if (key in dialogsData[idx]) dialogsData[idx][key] = data[key]
-                if (key === 'avatarSource') usersAvatars.push(data[key])
-            }
-        }
-    }
-
-    function flushDialogsData() {
-        messagesList.model.clear()
-        for (var item in dialogsData) messagesList.model.append(dialogsData[item])
-        messagesList.footerItem.visible = true
-    }
-
-    function stopBusyIndicator() {
-        flushDialogsData()
-        loadingIndicator.running = false
-        if (usersAvatars.length > 0) fileDownloader.startDownload(usersAvatars[0], 0)
-    }
-
-    function startAutoUpdate() {
-        if (!TypesJS.MessageUpdateMode.isManual() && !TypesJS.LongPollWorker.isActive()) {
-            MessagesAPI.api_startLongPoll(TypesJS.LongPollMode.ATTACH)
-        }
-    }
-
-    Connections {
-        target: fileDownloader
-        onDownloaded: {
-            usersAvatars = usersAvatars.slice(1)
-            if (usersAvatars.length > 0) fileDownloader.startDownload(usersAvatars[0], 0)
+        var reply = dialogsModel.getDialogs(count, offset, previewLength)
+        if (reply) {
+            reply.resultReady.connect(function(data) {
+                if (data) {
+                    offset += data.length - 1
+                }
+                loadingIndicator.running = false
+            });
         }
     }
 
@@ -145,13 +50,37 @@ Page {
         id: loadingIndicator
         anchors.centerIn: parent
         size: BusyIndicatorSize.Large
-        running: false // true
+        running: false
     }
 
-    SilicaListView {
-        id: messagesList
+    SilicaFlickable {
         anchors.fill: parent
-        anchors.bottomMargin: Theme.paddingMedium
+        contentHeight: parent.height
+
+        SilicaListView {
+            id: dialogsList
+            anchors.fill: parent
+            anchors.bottomMargin: Theme.paddingMedium
+
+            header: PageHeader {
+                title: qsTr("Сообщения")
+            }
+
+            model: dialogsModel
+
+            delegate: DialogItem {
+                id: item
+
+                onClicked: {
+                    console.log("dialogId = " + item.itemId)
+                    pageContainer.push(Qt.resolvedUrl("../pages/DialogPage.qml"),
+                                       { "title": item.title,
+                                        "chatId": item.itemId })
+                }
+            }
+
+            VerticalScrollDecorator {}
+        }
 
         PullDownMenu {
 
@@ -164,88 +93,23 @@ Page {
             MenuItem {
                 id: mainMenuItem
                 text: qsTr("Обновить")
-                onClicked: updateDialogs()
+                onClicked: {
+                    offset = 0
+                    getDialogs()
+                }
             }
         }
 
-        header: PageHeader {
-            title: qsTr("Сообщения")
-        }
+        PushUpMenu {
 
-        model: ListModel {}
-
-        delegate: UserItem {
-
-            onClicked: {
-                console.log("dialogId = " + itemId)
-                pageContainer.push(Qt.resolvedUrl("../pages/DialogPage.qml"),
-                                          { "fullname":     nameOrTitle,
-                                            "dialogId":     itemId,
-                                            "isChat":       isChat,
-                                            "userAvatar":   cachePath + StorageJS.readUserAvatar() })
+            MenuItem {
+                text: qsTr("Загрузить больше")
+                onClicked: getDialogs()
             }
         }
-
-        footer: Button {
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width / 3 * 2
-            text: qsTr("Загрузить больше")
-
-            onClicked: {
-                loadingIndicator.running = true
-                dialogsOffset = dialogsOffset + 20
-//                chatsCounter = 0
-                MessagesAPI.api_getDialogsList(dialogsOffset)
-            }
-        }
-
-        VerticalScrollDecorator {}
-    }
-
-    Timer {
-        interval: 60000
-        running: Qt.application.active
-        repeat: false
-        triggeredOnStart: true
-
-        property bool isFirstIteration: true
-
-        onRunningChanged: {
-            if (running) {
-                isFirstIteration = true
-                repeat = !TypesJS.MessageUpdateMode.isManual()
-            }
-        }
-
-        onTriggered: {
-            if (visible && isFirstIteration) {
-                if (messagesList.model.count === 0) formDialogsList()
-                else updateDialogs()
-
-                isFirstIteration = false
-            }
-
-            startAutoUpdate()
-        }
-    }
-
-    onStatusChanged: {
-        if (status === PageStatus.Active) startAutoUpdate()
     }
 
     Component.onCompleted: {
-        SignalsJS.signaller.endLoading.connect(stopBusyIndicator)
-        SignalsJS.signaller.gotMessageInfo.connect(updateDialogInfo)
-        SignalsJS.signaller.gotNewMessage.connect(updateDialogsList)
-        SignalsJS.signaller.gotDialogInfo.connect(updateDialogInfo)
-        SignalsJS.signaller.gotDialogs.connect(formDialogsList)
-    }
-
-    Component.onDestruction: {
-        SignalsJS.signaller.endLoading.disconnect(stopBusyIndicator)
-        SignalsJS.signaller.gotMessageInfo.disconnect(updateDialogInfo)
-        SignalsJS.signaller.gotNewMessage.disconnect(updateDialogsList)
-        SignalsJS.signaller.gotDialogInfo.disconnect(updateDialogInfo)
-        SignalsJS.signaller.gotDialogs.disconnect(formDialogsList)
+        getDialogs()
     }
 }

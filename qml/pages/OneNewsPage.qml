@@ -22,11 +22,9 @@
 import QtQuick 2.0
 import QtMultimedia 5.0
 import Sailfish.Silica 1.0
-import "../views"
+import Vreen.Base 2.0
 
-import "../js/api/wall.js" as WallAPI
-import "../js/storage.js" as StorageJS
-import "../js/api/likes.js" as LikesAPI
+import "../views"
 
 Page {
 
@@ -92,7 +90,7 @@ Page {
     function openVideoPlayer(urls, duration) {
         console.log(urls)
         console.log(duration)
-        var url = getVideoUrl(urls, parseInt(StorageJS.readSettingsValue("video_quality"), 10))
+        var url = getVideoUrl(urls, parseInt(storage.getSettings("video_quality"), 10))
 //        console.log(url)
 
         if (url) {
@@ -117,7 +115,8 @@ Page {
                 text: qsTr("Мне нравится")
                 onClicked: {
                     isPostLiked = true
-                    LikesAPI.api_addLike("post", itemId, ownerId)
+                    newsFeedModel.addLike(itemId)
+//                    LikesAPI.api_addLike("post", itemId, ownerId)
                 }
             }
         }

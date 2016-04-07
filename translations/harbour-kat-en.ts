@@ -45,39 +45,47 @@
     </message>
 </context>
 <context>
+    <name>ChatModel</name>
+    <message>
+        <location filename="../src/models/chatmodel.cpp" line="74"/>
+        <source>unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DialogPage</name>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="259"/>
+        <location filename="../qml/pages/DialogPage.qml" line="238"/>
         <source>Загрузить больше</source>
         <translation type="unfinished">Load more</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="275"/>
+        <location filename="../qml/pages/DialogPage.qml" line="145"/>
         <source>Был(a) в сети: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="313"/>
+        <location filename="../qml/pages/DialogPage.qml" line="183"/>
         <source>Копировать текст</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="381"/>
+        <location filename="../qml/pages/DialogPage.qml" line="228"/>
         <source>Сообщение:</source>
         <translation type="unfinished">Message:</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="382"/>
+        <location filename="../qml/pages/DialogPage.qml" line="229"/>
         <source>Сообщение</source>
         <translation type="unfinished">Message</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="392"/>
+        <location filename="../qml/pages/DialogPage.qml" line="249"/>
         <source>Обновить</source>
         <translation type="unfinished">Refresh</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogPage.qml" line="400"/>
+        <location filename="../qml/pages/DialogPage.qml" line="258"/>
         <source>Прикрепить изображение</source>
         <translation type="unfinished">Attach image</translation>
     </message>
@@ -85,26 +93,22 @@
 <context>
     <name>DialogsListPage</name>
     <message>
-        <location filename="../qml/pages/DialogsListPage.qml" line="170"/>
+        <location filename="../qml/pages/DialogsListPage.qml" line="89"/>
         <source>Новое сообщение</source>
         <translation>New message</translation>
     </message>
-<<<<<<< HEAD
-        <location filename="../qml/pages/DialogsListPage.qml" line="175"/>
-=======
     <message>
-        <location filename="../qml/pages/DialogsListPage.qml" line="176"/>
->>>>>>> Refactoring for SignalsJS
+        <location filename="../qml/pages/DialogsListPage.qml" line="95"/>
         <source>Обновить</source>
         <translation>Refresh</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogsListPage.qml" line="182"/>
+        <location filename="../qml/pages/DialogsListPage.qml" line="66"/>
         <source>Сообщения</source>
         <translation>Messages</translation>
     </message>
     <message>
-        <location filename="../qml/pages/DialogsListPage.qml" line="201"/>
+        <location filename="../qml/pages/DialogsListPage.qml" line="106"/>
         <source>Загрузить больше</source>
         <translation>Load more</translation>
     </message>
@@ -112,27 +116,27 @@
 <context>
     <name>MainMenuPage</name>
     <message>
-        <location filename="../qml/pages/MainMenuPage.qml" line="32"/>
+        <location filename="../qml/pages/MainMenuPage.qml" line="31"/>
         <source>Имя Фамилия</source>
         <translation>First Name Last Name</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainMenuPage.qml" line="35"/>
+        <location filename="../qml/pages/MainMenuPage.qml" line="34"/>
         <source>Новости</source>
         <translation>Newsfeed</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainMenuPage.qml" line="37"/>
+        <location filename="../qml/pages/MainMenuPage.qml" line="36"/>
         <source>Сообщения</source>
         <translation>Messages</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainMenuPage.qml" line="46"/>
+        <location filename="../qml/pages/MainMenuPage.qml" line="45"/>
         <source>Настройки</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainMenuPage.qml" line="47"/>
+        <location filename="../qml/pages/MainMenuPage.qml" line="46"/>
         <source>О программе</source>
         <translation>About app</translation>
     </message>
@@ -232,22 +236,22 @@
 <context>
     <name>NewsfeedPage</name>
     <message>
-        <location filename="../qml/pages/NewsfeedPage.qml" line="92"/>
+        <location filename="../qml/pages/NewsfeedPage.qml" line="68"/>
         <source>Обновить</source>
         <translation>Refresh</translation>
     </message>
     <message>
-        <location filename="../qml/pages/NewsfeedPage.qml" line="99"/>
+        <location filename="../qml/pages/NewsfeedPage.qml" line="75"/>
         <source>Новости</source>
         <translation>Newsfeed</translation>
     </message>
     <message>
-        <location filename="../qml/pages/NewsfeedPage.qml" line="138"/>
+        <location filename="../qml/pages/NewsfeedPage.qml" line="114"/>
         <source>Мне нравится</source>
         <translation>Like</translation>
     </message>
     <message>
-        <location filename="../qml/pages/NewsfeedPage.qml" line="153"/>
+        <location filename="../qml/pages/NewsfeedPage.qml" line="126"/>
         <source>Загрузить больше</source>
         <translation>Load more</translation>
     </message>
@@ -255,9 +259,73 @@
 <context>
     <name>OneNewsPage</name>
     <message>
-        <location filename="../qml/pages/OneNewsPage.qml" line="117"/>
+        <location filename="../qml/pages/OneNewsPage.qml" line="115"/>
         <source>Мне нравится</source>
         <translation>Like</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="72"/>
+        <source>Don&apos;t use reply directly</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="73"/>
+        <source>Use CoreClient instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="74"/>
+        <source>Use client.roster instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="75"/>
+        <source>Use client.connection instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="76"/>
+        <source>Use client.contact(id)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="77"/>
+        <source>Use roster.buddy(id)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="78"/>
+        <source>Only flags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="79"/>
+        <source>Use client.longPoll instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="80"/>
+        <source>Attachment enums</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="81"/>
+        <source>NewsItem enums</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="82"/>
+        <source>NewsFeed enums</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/harbour-kat.cpp" line="83"/>
+        <location filename="../src/harbour-kat.cpp" line="84"/>
+        <source>Cannot use this class directly</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -310,7 +378,7 @@
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="100"/>
         <source>По возможности быть offline</source>
-        <translation>Stay offline if it's possible </translation>
+        <translation>Stay offline if it&apos;s possible </translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="93"/>
@@ -323,7 +391,7 @@
         <translation>Display separators in messages</translation>
     </message>
     <message>
-    <location filename="../qml/pages/SettingsPage.qml" line="117"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="116"/>
         <source>Очистить кэш</source>
         <translation>Clear cache</translation>
     </message>
@@ -332,8 +400,8 @@
     <name>wall</name>
     <message>
         <location filename="../qml/js/api/wall.js" line="58"/>
-        <source>Опубликовано</source>
-        <translation>Posted</translation>
+        <source>������������������������</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

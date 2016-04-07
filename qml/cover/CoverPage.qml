@@ -21,20 +21,16 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "../js/api/messages.js" as MessagesAPI
-import "../js/api/account.js" as AccountAPI
-import "../js/signals.js" as SignalsJS
-import "../js/storage.js" as StorageJS
-import "../js/types.js" as TypesJS
+import Vreen.Base 2.0
 
 CoverBackground {
-    property int unreadDialogs: 0
+    property int unreadDialogs: dialogsModel.unreadCount
+    property int prevUnreadDialogs: 0
 
-    function updateCoverCounters(counter) {
-        coverMessagesCount.text = counter ? counter : "0"
-        if (counter !== unreadDialogs) notificationHelper.activateLed(counter > unreadDialogs)
-        unreadDialogs = counter
-        coverLoadingIndicator.running = false
+    onUnreadDialogsChanged: {
+        coverMessagesCount.text = unreadDialogs ? unreadDialogs : "0"
+        notificationHelper.activateLed(prevUnreadDialogs < unreadDialogs)
+        prevUnreadDialogs = unreadDialogs
     }
 
     Row {
@@ -57,13 +53,6 @@ CoverBackground {
         }
     }
 
-    BusyIndicator {
-        id: coverLoadingIndicator
-        anchors.centerIn: parent
-        size: BusyIndicatorSize.Large
-        running: false
-    }
-
     CoverActionList {
         id: coverAction
 
@@ -72,7 +61,7 @@ CoverBackground {
 
             onTriggered: {
                 var pageComponent
-                if (parseInt(StorageJS.readSettingsValue("create_from_cover"), 10) === 1) {
+                if (parseInt(storage.getSettings("create_from_cover"), 10) === 1) {
                     pageComponent = Qt.createQmlObject("import QtQuick 2.0; import \"../pages\"; Component { NewWallPostPage {} }", application)
                 } else {
                     pageComponent = Qt.createQmlObject("import QtQuick 2.0; import \"../pages\"; Component { NewMessagePage {} }", application)
@@ -81,33 +70,6 @@ CoverBackground {
                 window.activate()
             }
         }
-
-        CoverAction {
-            iconSource: "image://theme/icon-cover-refresh"
-
-            onTriggered: updateTimer.restart()
-        }
-    }
-
-    Timer {
-        id: updateTimer
-        running: !Qt.application.active
-        repeat: true
-        triggeredOnStart: true
-
-        onRunningChanged: if (running) interval = TypesJS.UpdateInterval.getValue() * 1000
-        onTriggered: {
-            coverLoadingIndicator.running = true
-            MessagesAPI.api_getUnreadMessagesCounter(true)
-        }
-    }
-
-    Component.onCompleted: {
-        SignalsJS.signaller.gotUnreadCount.connect(updateCoverCounters)
-    }
-    Component.onDestruction: {
-        MessagesAPI.signaller.gotUnreadCount.disconnect(updateCoverCounters)
-        AccountAPI.api_setOffline()
     }
 }
 

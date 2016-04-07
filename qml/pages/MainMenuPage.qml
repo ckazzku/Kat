@@ -21,7 +21,6 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "../js/storage.js" as StorageJS
 import "../js/api/messages.js" as MessagesAPI
 import "../js/api/users.js" as UsersAPI
 
@@ -48,9 +47,9 @@ Page {
     ]
 
     function doStartUpdate() {
-        if (StorageJS.readSettingsValue("user_id")) {
-            var fullUserName = StorageJS.readFullUserName()
-            var avatarFileName = StorageJS.readUserAvatar()
+        if (storage.getMyUid()) {
+            var fullUserName = storage.getMyName()
+            var avatarFileName = storage.getMyAvatar()
             updateUserNameAndAvatar(fullUserName, cachePath + avatarFileName)
             // TODO Calculating unread messages counter with cached data
 
@@ -59,8 +58,8 @@ Page {
     }
 
     function doForceUpdate() {
-        UsersAPI.api_getUserNameAndAvatar(StorageJS.readSettingsValue("user_id"))
-        MessagesAPI.api_getUnreadMessagesCounter(false)
+        UsersAPI.api_getUserNameAndAvatar(storage.getMyUid())
+//        MessagesAPI.api_getUnreadMessagesCounter(false)
     }
 
     function updateUserNameAndAvatar(name, avatarUrl) {
@@ -191,12 +190,12 @@ Page {
         generateModelFromArray()
         doStartUpdate()
 
-        MessagesAPI.signaller.gotUnreadCount.connect(updateUnreadMessagesCounter)
+//        MessagesAPI.signaller.gotUnreadCount.connect(updateUnreadMessagesCounter)
         UsersAPI.signaller.gotUserNameAndAvatar.connect(updateUserNameAndAvatar)
     }
 
     Component.onDestruction: {
-        MessagesAPI.signaller.gotUnreadCount.disconnect(updateUnreadMessagesCounter)
+//        MessagesAPI.signaller.gotUnreadCount.disconnect(updateUnreadMessagesCounter)
         UsersAPI.signaller.gotUserNameAndAvatar.disconnect(updateUserNameAndAvatar)
     }
 }

@@ -21,24 +21,18 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Vreen.Base 2.0
 import "../views"
-import "../js/api/messages.js" as MessagesAPI
-
 
 Page {
     id: chatUsersPage
 
-//    property int dialogId
-    property string chatTitle
+    property string title
     property variant users
 
-    function appendUser(uid, name, photo, isOnline, status) {
-        usersList.model.append({ dialogId:     uid,
-                                 isDialog:     false,
-                                 avatarSource: photo,
-                                 nameOrTitle:  name,
-                                 previewText:  status,
-                                 isOnline:     isOnline })
+    onUsersChanged: {
+        for (var index in users)
+            usersList.model.append({ contact: users[index] })
     }
 
     SilicaListView {
@@ -46,26 +40,14 @@ Page {
         anchors.fill: parent
         anchors.bottomMargin: Theme.paddingMedium
 
+        header: PageHeader {
+            title: chatUsersPage.title
+        }
+
         model: ListModel {}
 
         delegate: UserItem {}
 
-        header: PageHeader {
-            title: chatTitle
-        }
-
         VerticalScrollDecorator {}
-    }
-
-//    Component.onCompleted: MessagesAPI.api_getChatUsers(dialogId)
-    Component.onCompleted: {
-        for (var index in users) {
-            usersList.model.append({ dialogId:     users[index].id,
-                                     isDialog:     false,
-                                     avatarSource: users[index].photo,
-                                     nameOrTitle:  users[index].name,
-                                     previewText:  users[index].status,
-                                     isOnline:     users[index].online })
-        }
     }
 }

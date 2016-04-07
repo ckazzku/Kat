@@ -21,49 +21,25 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Vreen.Base 2.0
 
 import "../views"
-import "../js/storage.js" as StorageJS
-import "../js/api/news.js" as NewsAPI
-import "../js/api/likes.js" as LikesAPI
-
 
 Page {
-
-    property string nextFrom
-
+    property int count: 10
     property Item contextMenu
 
-    function doStartUpdate() {
-        if (StorageJS.readSettingsValue("user_id")) {
+    function getNews() {
+        if (storage.getMyUid()) {
             loadingIndicator.running = true
-            newsfeedList.model.clear()
-            nextFrom = ""
-            NewsAPI.api_getLastNews(nextFrom)
+
+            var reply = newsFeedModel.getNews(NewsFeed.FilterPost, count, newsFeedModel.count)
+            if (reply) {
+                reply.resultReady.connect(function() {
+                    loadingIndicator.running = false
+                });
+            }
         }
-    }
-
-    function appendPostToNewsFeed(postData) {
-        newsfeedList.model.append({ postId:          postData[0],
-                                    textBody:        postData[1],
-                                    out:             0,
-                                    readState:       1,
-                                    datetime:        postData[2],
-                                    attachmentsData: postData.slice(11),
-                                    avatarSource:    postData[3],
-                                    postAuthor:      postData[4],
-                                    sourceId:        postData[5],
-                                    commentsCount:   postData[6],
-                                    likesCount:      postData[7],
-                                    isPostLiked:     postData[8],
-                                    repostsCount:    postData[9],
-                                    isPostReposted:  postData[10],
-                                    isNewsContent:   true })
-    }
-
-    function stopLoadingNewsIndicator(next_from) {
-        if (typeof next_from !== 'undefined') nextFrom = next_from
-        loadingIndicator.running = false
     }
 
     function shownotification(text) {
@@ -94,7 +70,7 @@ Page {
             }
         }
 
-        model: ListModel {}
+        model: newsFeedModel
 
         header: PageHeader { title: qsTr("Новости") }
 
@@ -111,17 +87,17 @@ Page {
                 width: parent.width
 
                 onClicked: pageContainer.push(Qt.resolvedUrl("../pages/OneNewsPage.qml"),
-                                              { "datetime":        datetime,
-                                                "textBody":        textBody,
-                                                "postAuthor":      postAuthor,
+                                              { "datetime":        date,
+                                                "textBody":        body,
+                                                "postAuthor":      owner,
                                                 "itemId":          postId,
-                                                "ownerId":         sourceId,
-                                                "commentsCount":   commentsCount,
-                                                "likesCount":      likesCount,
-                                                "repostsCount":    repostsCount,
-                                                "isPostLiked":     isPostLiked,
-                                                "isPostReposted":  isPostReposted,
-                                                "attachmentsData": attachmentsData })
+                                                "ownerId":         owner ? owner.id : 0,
+                                                "commentsCount":   comments.count,
+                                                "likesCount":      likes.count,
+                                                "repostsCount":    reposts.count,
+                                                "isPostLiked":     likes.count > 0,
+                                                "isPostReposted":  reposts.count > 0,
+                                                "attachmentsData": attachments })
                 onPressAndHold: {
                     if (!contextMenu)
                         contextMenu = contextMenuComponent.createObject(newsfeedList)
@@ -136,10 +112,7 @@ Page {
 
                     MenuItem {
                         text: qsTr("Мне нравится")
-                        onClicked: {
-                            newsfeedList.model.setProperty(index, "isPostLiked", 1)
-                            LikesAPI.api_addLike("post", newsfeedList.model.get(index).postId, newsfeedList.model.get(index).sourceId)
-                        }
+                        onClicked: newsFeedModel.addLike(index)
                     }
 
                     onClosed: contextMenu = null
@@ -151,11 +124,10 @@ Page {
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width / 3 * 2
             text: qsTr("Загрузить больше")
-            visible: nextFrom !== ''
+            visible: newsFeedModel.count > 0
 
             onClicked: {
-                loadingIndicator.running = true
-                NewsAPI.api_getLastNews(nextFrom)
+                getNews()
             }
         }
 
@@ -163,6 +135,6 @@ Page {
     }
 
     Component.onCompleted: {
-        doStartUpdate()
+        getNews()
     }
 }
